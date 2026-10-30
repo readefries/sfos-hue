@@ -1,0 +1,111 @@
+{
+  "errors": [],
+  "data": [
+    {
+      "id": "home-1", "type": "bridge_home",
+      "children": [{"rid": "room-living", "rtype": "room"}, {"rid": "room-bed", "rtype": "room"}],
+      "services": [{"rid": "gl-all", "rtype": "grouped_light"}]
+    },
+    {
+      "id": "room-living", "type": "room",
+      "metadata": {"name": "Living room", "archetype": "living_room"},
+      "children": [{"rid": "dev-1", "rtype": "device"}, {"rid": "dev-2", "rtype": "device"}],
+      "services": [{"rid": "gl-living", "rtype": "grouped_light"}]
+    },
+    {
+      "id": "room-bed", "type": "room",
+      "metadata": {"name": "Bedroom", "archetype": "bedroom"},
+      "children": [{"rid": "dev-3", "rtype": "device"}],
+      "services": [{"rid": "gl-bed", "rtype": "grouped_light"}]
+    },
+    {
+      "id": "zone-reading", "type": "zone",
+      "metadata": {"name": "Reading corner", "archetype": "reading"},
+      "children": [{"rid": "light-1", "rtype": "light"}],
+      "services": [{"rid": "gl-reading", "rtype": "grouped_light"}]
+    },
+    {
+      "id": "dev-1", "type": "device",
+      "metadata": {"name": "Floor lamp", "archetype": "floor_shade"},
+      "product_data": {"model_id": "LCA001", "product_name": "Hue color lamp"},
+      "services": [{"rid": "light-1", "rtype": "light"}, {"rid": "zc-1", "rtype": "zigbee_connectivity"}]
+    },
+    {
+      "id": "dev-2", "type": "device",
+      "metadata": {"name": "Ceiling", "archetype": "ceiling_round"},
+      "product_data": {"model_id": "LWB010", "product_name": "Hue white lamp"},
+      "services": [{"rid": "light-2", "rtype": "light"}, {"rid": "zc-2", "rtype": "zigbee_connectivity"}]
+    },
+    {
+      "id": "dev-3", "type": "device",
+      "metadata": {"name": "Bedside", "archetype": "table_shade"},
+      "product_data": {"model_id": "LTW001", "product_name": "Hue white ambiance"},
+      "services": [{"rid": "light-3", "rtype": "light"}, {"rid": "zc-3", "rtype": "zigbee_connectivity"}]
+    },
+    {
+      "id": "light-1", "type": "light",
+      "owner": {"rid": "dev-1", "rtype": "device"},
+      "metadata": {"name": "Floor lamp", "archetype": "floor_shade"},
+      "on": {"on": true},
+      "dimming": {"brightness": 80.0, "min_dim_level": 0.2},
+      "color_temperature": {"mirek": null, "mirek_valid": false,
+                            "mirek_schema": {"mirek_minimum": 153, "mirek_maximum": 500}},
+      "color": {"xy": {"x": 0.6, "y": 0.35}, "gamut_type": "C",
+                "gamut": {"red": {"x": 0.6915, "y": 0.3083}, "green": {"x": 0.17, "y": 0.7},
+                          "blue": {"x": 0.1532, "y": 0.0475}}}
+    },
+    {
+      "id": "light-2", "type": "light",
+      "owner": {"rid": "dev-2", "rtype": "device"},
+      "metadata": {"name": "Ceiling", "archetype": "ceiling_round"},
+      "on": {"on": false},
+      "dimming": {"brightness": 40.0}
+    },
+    {
+      "id": "light-3", "type": "light",
+      "owner": {"rid": "dev-3", "rtype": "device"},
+      "metadata": {"name": "Bedside", "archetype": "table_shade"},
+      "on": {"on": true},
+      "dimming": {"brightness": 25.0},
+      "color_temperature": {"mirek": 400, "mirek_valid": true,
+                            "mirek_schema": {"mirek_minimum": 153, "mirek_maximum": 454}}
+    },
+    {"id": "zc-1", "type": "zigbee_connectivity", "owner": {"rid": "dev-1", "rtype": "device"}, "status": "connected"},
+    {"id": "zc-2", "type": "zigbee_connectivity", "owner": {"rid": "dev-2", "rtype": "device"}, "status": "connected"},
+    {"id": "zc-3", "type": "zigbee_connectivity", "owner": {"rid": "dev-3", "rtype": "device"}, "status": "connectivity_issue"},
+    {"id": "gl-all", "type": "grouped_light", "owner": {"rid": "home-1", "rtype": "bridge_home"},
+     "on": {"on": true}, "dimming": {"brightness": 60.0}},
+    {"id": "gl-living", "type": "grouped_light", "owner": {"rid": "room-living", "rtype": "room"},
+     "on": {"on": true}, "dimming": {"brightness": 80.0}},
+    {"id": "gl-bed", "type": "grouped_light", "owner": {"rid": "room-bed", "rtype": "room"},
+     "on": {"on": true}, "dimming": {"brightness": 25.0}},
+    {"id": "gl-reading", "type": "grouped_light", "owner": {"rid": "zone-reading", "rtype": "zone"},
+     "on": {"on": true}, "dimming": {"brightness": 80.0}},
+    {
+      "id": "scene-relax", "type": "scene",
+      "metadata": {"name": "Relax"},
+      "group": {"rid": "room-living", "rtype": "room"},
+      "status": {"active": "inactive"},
+      "actions": [{"target": {"rid": "light-1", "rtype": "light"},
+                   "action": {"on": {"on": true}, "dimming": {"brightness": 56.0},
+                              "color_temperature": {"mirek": 447}}}]
+    },
+    {
+      "id": "scene-sunset", "type": "scene",
+      "metadata": {"name": "Sunset"},
+      "group": {"rid": "room-living", "rtype": "room"},
+      "status": {"active": "static"},
+      "palette": {"color": [{"color": {"xy": {"x": 0.55, "y": 0.4}}, "dimming": {"brightness": 70.0}}]},
+      "actions": []
+    },
+    {
+      "id": "scene-night", "type": "scene",
+      "metadata": {"name": "Nightlight"},
+      "group": {"rid": "room-bed", "rtype": "room"},
+      "status": {"active": "inactive"},
+      "actions": [{"target": {"rid": "light-3", "rtype": "light"},
+                   "action": {"on": {"on": true}, "dimming": {"brightness": 1.0},
+                              "color_temperature": {"mirek": 454}}}]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Read-only by default; only the release jobs get more.
+permissions:
+  contents: read
+
+# Runs on the same branch queue up instead of overlapping, so a release always sees the
+# commits and tags it computed its version from.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+# Actions are pinned to commits (tags can move); the comment says which release that is.
+jobs:
+  build:
+    name: SailfishOS ${{ matrix.release }} ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 5.1.0.11 is the oldest supported release and the newest official SDK target.
+        # 5.2 has no official target yet; the community image covers it.
+        include:
+          - { release: 5.1.0.11, arch: aarch64 }
+          - { release: 5.1.0.11, arch: armv7hl }
+          - { release: 5.1.0.11, arch: i486 }
+          - { release: 5.2.0.15, arch: aarch64 }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # %check in the spec runs the Qt tests.
+      - name: Build RPM and run tests
+        run: scripts/docker-build.sh ${{ matrix.release }} ${{ matrix.arch }}
+        env:
+          # The SDK's scratchbox2 can't start its daemon under the runner's default container
+          # restrictions ("sb2d: Failed to create server socket"); the community action
+          # (CODeRUS/github-sfos-build) runs privileged for the same reason.
+          DOCKER_RUN_ARGS: --privileged
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: harbour-lampje-${{ matrix.release }}-${{ matrix.arch }}
+          path: build-docker/${{ matrix.release }}-${{ matrix.arch }}/*.rpm
+          if-no-files-found: error
+

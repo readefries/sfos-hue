@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Name=Lampje
+Comment=Control Philips Hue lights
+Icon=harbour-lampje
+Exec=harbour-lampje
+
+[X-Sailjail]
+# Talks to the bridge on the local network (and, to find it, Philips' discovery service).
+Permissions=Internet
+OrganizationName=nl.readefries
+ApplicationName=harbour-lampje
