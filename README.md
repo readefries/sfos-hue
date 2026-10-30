@@ -59,6 +59,13 @@ sfdk -c target=SailfishOS-5.1.0.11-aarch64 build ..     # tests run in %check
 `scripts/deploy.sh [ssh-host]` builds and copies the RPM to the phone; `scripts/docker-build.sh
 [release] [arch]` builds in the community SDK image, as CI does.
 
+## Translations
+
+The build runs lupdate over `app/` and `core/`, adding new strings to `app/translations/*.ts`.
+`tools/translations.py` then fills them in from its tables (Dutch, and English for plural forms
+only); strings it doesn't know stay unfinished and show in English. For another language, add a
+table there and the file to `TRANSLATIONS` in `app/app.pro`.
+
 ## Without a bridge
 
 ```sh
@@ -74,8 +81,8 @@ before it succeeds. `--cert`/`--key` serve HTTPS, to try the certificate pinning
 
 - **Done since the first version:** lamps with several spots as one light; sensors and switches
   (motion, temperature, light level, buttons, batteries; motion sensors can be switched off); icons
-  by lamp type.
-- **Next:** room icons by archetype; translations; creating and editing scenes.
+  by lamp and room type; Dutch.
+- **Next:** creating and editing scenes.
 - **Then:** renaming lights and rooms; motion sensor sensitivity; more than one bridge; storing the
   app key in Sailfish Secrets.
 - **Maybe:** automations (`behavior_instance`), remote access through Philips' cloud API (needs a

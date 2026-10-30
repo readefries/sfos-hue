@@ -10,10 +10,12 @@
 #include <sailfishapp.h>
 
 #include <QGuiApplication>
+#include <QLocale>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickView>
 #include <QScopedPointer>
+#include <QTranslator>
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +24,16 @@ int main(int argc, char *argv[])
     app->setOrganizationName(QStringLiteral("nl.readefries"));
     app->setApplicationName(QStringLiteral("harbour-lampje"));
     app->setApplicationVersion(QStringLiteral(LAMPJE_VERSION));
+
+    // English underneath for plural forms, which the source can't give, and the phone's language on
+    // top. Translators installed last are asked first.
+    const QString translations = SailfishApp::pathTo(QStringLiteral("translations")).toLocalFile();
+    QTranslator *english = new QTranslator(app.data());
+    if (english->load(QStringLiteral("harbour-lampje-en"), translations))
+        app->installTranslator(english);
+    QTranslator *local = new QTranslator(app.data());
+    if (local->load(QLocale(), QStringLiteral("harbour-lampje"), QStringLiteral("-"), translations))
+        app->installTranslator(local);
 
     const char *uri = "harbour.lampje";
     const QString global = QStringLiteral("use the global \"hue\"");

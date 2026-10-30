@@ -15,13 +15,13 @@ Page {
         if (minutes < 1)
             return qsTr("just now")
         if (minutes < 60)
-            return qsTr("%1 min ago").arg(minutes)
+            return qsTr("%n min ago", "", minutes)
         var hours = Math.floor(minutes / 60)
         if (hours < 24)
-            return qsTr("%1 h ago").arg(hours)
+            return qsTr("%n h ago", "", hours)
         var days = Math.floor(hours / 24)
         if (days < 7)
-            return days === 1 ? qsTr("yesterday") : qsTr("%1 days ago").arg(days)
+            return days === 1 ? qsTr("yesterday") : qsTr("%n day(s) ago", "", days)
         return Format.formatDate(time, Formatter.DateMedium)
     }
 

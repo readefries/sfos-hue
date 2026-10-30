@@ -19,10 +19,21 @@ ListItem {
             width: parent.width
             height: Theme.itemSizeSmall
 
-            Column {
+            RoomIcon {
+                id: icon
                 anchors {
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
+                    verticalCenter: parent.verticalCenter
+                }
+                archetype: model.archetype
+                on: model.on
+            }
+
+            Column {
+                anchors {
+                    left: icon.right
+                    leftMargin: Theme.paddingLarge
                     right: toggle.left
                     verticalCenter: parent.verticalCenter
                 }
@@ -34,7 +45,7 @@ ListItem {
                 }
                 Label {
                     width: parent.width
-                    text: model.lightCount === 1 ? qsTr("1 light") : qsTr("%1 lights").arg(model.lightCount)
+                    text: qsTr("%n light(s)", "", model.lightCount)
                     font.pixelSize: Theme.fontSizeExtraSmall
                     color: item.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 }
