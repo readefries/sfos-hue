@@ -166,7 +166,26 @@ QString HueResourceStore::connectivityOfLight(const QString &lightId) const
 
 bool HueResourceStore::isReachable(const QString &lightId) const
 {
-    const QString connectivity = connectivityOfLight(lightId);
+    return isDeviceReachable(deviceOf(lightId));
+}
+
+QStringList HueResourceStore::servicesOf(const QString &deviceId, const QString &rtype) const
+{
+    return HueJson::refs(m_resources.value(deviceId), QStringLiteral("services"), rtype);
+}
+
+QString HueResourceStore::deviceOf(const QString &serviceId) const
+{
+    const QJsonObject owner = m_resources.value(serviceId).value(QStringLiteral("owner")).toObject();
+    if (owner.value(QStringLiteral("rtype")).toString() != QLatin1String("device"))
+        return QString();
+    return owner.value(QStringLiteral("rid")).toString();
+}
+
+bool HueResourceStore::isDeviceReachable(const QString &deviceId) const
+{
+    const QString connectivity = HueJson::firstRef(m_resources.value(deviceId), QStringLiteral("services"),
+                                                   QStringLiteral("zigbee_connectivity"));
     if (connectivity.isEmpty() || !m_resources.contains(connectivity))
         return true;
     const QString status = m_resources.value(connectivity).value(QStringLiteral("status")).toString();

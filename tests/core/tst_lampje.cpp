@@ -556,6 +556,39 @@ private slots:
         QCOMPARE(spots.idAt(0), QStringLiteral("light-spot-1"));
     }
 
+    void sensorModel()
+    {
+        HueResourceStore store;
+        store.reset(fixtureData());
+        HueSensorModel sensors;
+        sensors.setStore(&store);
+        QCOMPARE(sensors.rowCount(), 2); // Hallway, Hue dimmer switch 1; not the lamps
+        auto value = [&sensors](int row, int role) { return sensors.data(sensors.index(row), role); };
+
+        QCOMPARE(value(0, HueSensorModel::KindRole).toString(), QStringLiteral("motion"));
+        QCOMPARE(value(0, HueSensorModel::MotionIdRole).toString(), QStringLiteral("motion-1"));
+        QVERIFY(value(0, HueSensorModel::MotionEnabledRole).toBool());
+        QVERIFY(!value(0, HueSensorModel::MotionRole).toBool());
+        QCOMPARE(value(0, HueSensorModel::MotionChangedRole).toDateTime().toUTC(),
+                 QDateTime(QDate(2026, 10, 30), QTime(18, 8, 6, 5), Qt::UTC));
+        QCOMPARE(value(0, HueSensorModel::TemperatureRole).toDouble(), 21.5);
+        QVERIFY(qAbs(value(0, HueSensorModel::LightLevelRole).toDouble() - 10.0) < 0.01);
+        QCOMPARE(value(0, HueSensorModel::BatteryLevelRole).toInt(), 12);
+        QVERIFY(value(0, HueSensorModel::BatteryLowRole).toBool());
+
+        QCOMPARE(value(1, HueSensorModel::KindRole).toString(), QStringLiteral("switch"));
+        QVERIFY(!value(1, HueSensorModel::TemperatureRole).isValid());
+        QCOMPARE(value(1, HueSensorModel::LastButtonRole).toInt(), 2);
+        QCOMPARE(value(1, HueSensorModel::LastButtonEventRole).toString(), QStringLiteral("long_press"));
+
+        // A button press arrives as an event on one button.
+        QSignalSpy changed(&sensors, &QAbstractItemModel::dataChanged);
+        store.applyUpdate(json(R"({"id": "button-1", "button": {"button_report": {"updated": "2026-10-30T10:00:00.000Z", "event": "initial_press"}}})"));
+        QCOMPARE(changed.count(), 1);
+        QCOMPARE(value(1, HueSensorModel::LastButtonRole).toInt(), 1);
+        QCOMPARE(value(1, HueSensorModel::LastButtonEventRole).toString(), QStringLiteral("initial_press"));
+    }
+
     void clientPairsAndControls()
     {
         FakeHueBridge fake;
@@ -600,6 +633,11 @@ private slots:
             for (int i = 3; i < 6; ++i)
                 QVERIFY(fake.puts().at(i).path.startsWith("/clip/v2/resource/light/light-spot-"));
             QCOMPARE(at(client.store()->resource(QStringLiteral("light-spot-3")), "color_temperature", "mirek").toInt(), 250);
+
+            client.setEnabled(QStringLiteral("motion-1"), false);
+            QTRY_COMPARE(fake.puts().size(), 7);
+            QCOMPARE(fake.puts().last().path, QByteArray("/clip/v2/resource/motion/motion-1"));
+            QCOMPARE(fake.puts().last().body, QByteArray(R"({"enabled":false})"));
         }
         {
             // Remembered, and connects by itself.

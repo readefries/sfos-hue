@@ -49,6 +49,12 @@ public:
     // Whether the light is reachable: unknown counts as reachable.
     bool isReachable(const QString &lightId) const;
     QStringList scenesOf(const QString &groupId) const;
+    // Services of a device of one type (light, motion, button, device_power, ...).
+    QStringList servicesOf(const QString &deviceId, const QString &rtype) const;
+    // The device a service belongs to.
+    QString deviceOf(const QString &serviceId) const;
+    // Like isReachable(), for any device.
+    bool isDeviceReachable(const QString &deviceId) const;
 
     // Lamps with several spots (e.g. Hue Runner) are separate devices, one light each; only their
     // model ids tell they belong together: the lamp's 12NC product number plus _01, _02, ...

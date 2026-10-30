@@ -129,4 +129,44 @@ private:
     QString m_groupId;
 };
 
+// Devices with sensors, buttons or batteries: motion sensors, switches, ...
+class HueSensorModel : public HueListModel
+{
+    Q_OBJECT
+public:
+    enum Roles {
+        IdRole = Qt::UserRole + 1,
+        NameRole,
+        ProductNameRole,
+        KindRole,           // "motion", "switch", "contact" or "sensor"
+        ReachableRole,
+        MotionIdRole,       // the motion service, to switch it on or off; empty if none
+        MotionEnabledRole,
+        MotionRole,
+        MotionChangedRole,  // when motion last started or stopped
+        TemperatureRole,    // °C; undefined if none
+        LightLevelRole,     // lux; undefined if none
+        BatteryLevelRole,   // %; -1 if none
+        BatteryLowRole,
+        LastButtonRole,     // number of the button pressed last; 0 if none
+        LastButtonEventRole,// short_release, long_press, ...
+        LastButtonTimeRole
+    };
+
+    explicit HueSensorModel(QObject *parent = nullptr);
+    QHash<int, QByteArray> roleNames() const override;
+
+    // The bridge reports light level as 10000 * log10(lux) + 1.
+    static double lux(int lightLevel);
+
+protected:
+    QStringList collectIds() const override;
+    QStringList dependenciesOf(const QString &id) const override;
+    QVariant dataFor(const QString &id, int role) const override;
+
+private:
+    QJsonObject service(const QString &deviceId, const QString &rtype) const;
+    QJsonObject lastButton(const QString &deviceId) const;
+};
+
 #endif // HUEMODELS_H

@@ -4,7 +4,9 @@
 #include "huecolor.h"
 #include "huejson.h"
 
+#include <QDateTime>
 #include <QJsonArray>
+#include <QtMath>
 
 namespace {
 
@@ -318,6 +320,153 @@ QVariant HueSceneModel::dataFor(const QString &id, int role) const
         }
         return HueColor::mirekToRgb(kDefaultMirek);
     }
+    }
+    return QVariant();
+}
+
+// Sensors
+
+namespace {
+
+const QStringList kSensorServices = {
+    QStringLiteral("motion"), QStringLiteral("temperature"), QStringLiteral("light_level"),
+    QStringLiteral("button"), QStringLiteral("relative_rotary"), QStringLiteral("contact"),
+    QStringLiteral("device_power"),
+};
+
+QDateTime timestamp(const QJsonValue &value)
+{
+    QDateTime time = QDateTime::fromString(value.toString(), Qt::ISODate);
+    time.setTimeSpec(Qt::UTC);
+    return time.isValid() ? time.toLocalTime() : QDateTime();
+}
+
+} // namespace
+
+HueSensorModel::HueSensorModel(QObject *parent)
+    : HueListModel(parent)
+{
+}
+
+QHash<int, QByteArray> HueSensorModel::roleNames() const
+{
+    return {
+        {IdRole, "resourceId"},
+        {NameRole, "name"},
+        {ProductNameRole, "productName"},
+        {KindRole, "kind"},
+        {ReachableRole, "reachable"},
+        {MotionIdRole, "motionId"},
+        {MotionEnabledRole, "motionEnabled"},
+        {MotionRole, "motion"},
+        {MotionChangedRole, "motionChanged"},
+        {TemperatureRole, "temperature"},
+        {LightLevelRole, "lightLevel"},
+        {BatteryLevelRole, "batteryLevel"},
+        {BatteryLowRole, "batteryLow"},
+        {LastButtonRole, "lastButton"},
+        {LastButtonEventRole, "lastButtonEvent"},
+        {LastButtonTimeRole, "lastButtonTime"},
+    };
+}
+
+double HueSensorModel::lux(int lightLevel)
+{
+    return qPow(10.0, (lightLevel - 1) / 10000.0);
+}
+
+QStringList HueSensorModel::collectIds() const
+{
+    QStringList devices;
+    for (const QString &id : m_store->idsOfType(QStringLiteral("device"))) {
+        // Lamps can have device_power too (none do yet); this is about sensors.
+        if (!m_store->servicesOf(id, QStringLiteral("light")).isEmpty())
+            continue;
+        for (const QString &type : kSensorServices) {
+            if (!m_store->servicesOf(id, type).isEmpty()) {
+                devices.append(id);
+                break;
+            }
+        }
+    }
+    return sortedByName(devices);
+}
+
+QStringList HueSensorModel::dependenciesOf(const QString &id) const
+{
+    QStringList dependencies = HueJson::refs(m_store->resource(id), QStringLiteral("services"),
+                                             QStringLiteral("zigbee_connectivity"));
+    dependencies.append(id);
+    for (const QString &type : kSensorServices)
+        dependencies += m_store->servicesOf(id, type);
+    return dependencies;
+}
+
+QJsonObject HueSensorModel::service(const QString &deviceId, const QString &rtype) const
+{
+    const QStringList ids = m_store->servicesOf(deviceId, rtype);
+    return ids.isEmpty() ? QJsonObject() : m_store->resource(ids.first());
+}
+
+QJsonObject HueSensorModel::lastButton(const QString &deviceId) const
+{
+    QJsonObject last;
+    QDateTime lastTime;
+    for (const QString &id : m_store->servicesOf(deviceId, QStringLiteral("button"))) {
+        const QJsonObject button = m_store->resource(id);
+        const QDateTime time = timestamp(at(button, "button", "button_report", "updated"));
+        if (time.isValid() && (!lastTime.isValid() || time > lastTime)) {
+            last = button;
+            lastTime = time;
+        }
+    }
+    return last;
+}
+
+QVariant HueSensorModel::dataFor(const QString &id, int role) const
+{
+    const QJsonObject device = m_store->resource(id);
+    switch (role) {
+    case IdRole: return id;
+    case NameRole: return at(device, "metadata", "name").toString();
+    case ProductNameRole: return at(device, "product_data", "product_name").toString();
+    case KindRole:
+        if (!m_store->servicesOf(id, QStringLiteral("motion")).isEmpty())
+            return QStringLiteral("motion");
+        if (!m_store->servicesOf(id, QStringLiteral("button")).isEmpty())
+            return QStringLiteral("switch");
+        if (!m_store->servicesOf(id, QStringLiteral("contact")).isEmpty())
+            return QStringLiteral("contact");
+        return QStringLiteral("sensor");
+    case ReachableRole: return m_store->isDeviceReachable(id);
+    case MotionIdRole: return m_store->servicesOf(id, QStringLiteral("motion")).value(0);
+    case MotionEnabledRole: return service(id, QStringLiteral("motion")).value(QStringLiteral("enabled")).toBool();
+    case MotionRole: return at(service(id, QStringLiteral("motion")), "motion", "motion").toBool();
+    case MotionChangedRole:
+        return timestamp(at(service(id, QStringLiteral("motion")), "motion", "motion_report", "changed"));
+    case TemperatureRole: {
+        const QJsonObject temperature = service(id, QStringLiteral("temperature"));
+        if (!at(temperature, "temperature", "temperature_valid").toBool())
+            return QVariant();
+        return at(temperature, "temperature", "temperature").toDouble();
+    }
+    case LightLevelRole: {
+        const QJsonObject light = service(id, QStringLiteral("light_level"));
+        if (!at(light, "light", "light_level_valid").toBool())
+            return QVariant();
+        return lux(at(light, "light", "light_level").toInt());
+    }
+    case BatteryLevelRole: {
+        const QJsonValue level = at(service(id, QStringLiteral("device_power")), "power_state", "battery_level");
+        return level.isDouble() ? level.toInt() : -1;
+    }
+    case BatteryLowRole: {
+        const QString state = at(service(id, QStringLiteral("device_power")), "power_state", "battery_state").toString();
+        return state == QLatin1String("low") || state == QLatin1String("critical");
+    }
+    case LastButtonRole: return at(lastButton(id), "metadata", "control_id").toInt();
+    case LastButtonEventRole: return at(lastButton(id), "button", "button_report", "event").toString();
+    case LastButtonTimeRole: return timestamp(at(lastButton(id), "button", "button_report", "updated"));
     }
     return QVariant();
 }

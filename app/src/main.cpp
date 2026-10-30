@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<HueRoomModel>(uri, 1, 0, "RoomModel");
     qmlRegisterType<HueLightModel>(uri, 1, 0, "LightModel");
     qmlRegisterType<HueSceneModel>(uri, 1, 0, "SceneModel");
+    qmlRegisterType<HueSensorModel>(uri, 1, 0, "SensorModel");
 
     HueClient hue;
     QObject::connect(app.data(), &QGuiApplication::applicationStateChanged, &hue,

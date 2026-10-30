@@ -257,6 +257,11 @@ void HueClient::recallScene(const QString &sceneId)
                      object(QStringLiteral("recall"), object(QStringLiteral("action"), QStringLiteral("active"))));
 }
 
+void HueClient::setEnabled(const QString &id, bool enabled)
+{
+    command(id, object(QStringLiteral("enabled"), enabled));
+}
+
 void HueClient::allOff()
 {
     // bridge_home has a grouped_light covering every light.

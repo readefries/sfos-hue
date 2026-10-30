@@ -80,6 +80,9 @@ class Bridge:
                         if scene["status"]["active"] != active:
                             scene["status"]["active"] = active
                             changes.append({"id": scene["id"], "type": "scene", "status": {"active": active}})
+            elif "enabled" in body:
+                res["enabled"] = body["enabled"]
+                changes.append({"id": rid, "type": rtype, "enabled": body["enabled"]})
             changes += self.update_groups()
             return changes
 

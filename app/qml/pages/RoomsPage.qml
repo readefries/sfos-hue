@@ -22,6 +22,10 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             }
             MenuItem {
+                text: qsTr("Sensors and switches")
+                onClicked: pageStack.push(Qt.resolvedUrl("SensorsPage.qml"))
+            }
+            MenuItem {
                 text: qsTr("All lights off")
                 enabled: hue.state === HueClient.Connected
                 onClicked: hue.allOff()

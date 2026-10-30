@@ -81,6 +81,8 @@ public:
     Q_INVOKABLE void setColor(const QString &id, const QColor &color);
     Q_INVOKABLE void setMirek(const QString &id, int mirek);
     Q_INVOKABLE void recallScene(const QString &sceneId);
+    // Switch a sensor service (e.g. motion) on or off.
+    Q_INVOKABLE void setEnabled(const QString &id, bool enabled);
     Q_INVOKABLE void allOff();
     Q_INVOKABLE QColor mirekColor(int mirek) const;
 

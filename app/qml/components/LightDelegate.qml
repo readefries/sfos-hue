@@ -19,20 +19,16 @@ ListItem {
             width: parent.width
             height: Theme.itemSizeSmall
 
-            Rectangle {
+            LightIcon {
                 id: swatch
                 anchors {
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
                     verticalCenter: parent.verticalCenter
                 }
-                width: Theme.iconSizeSmall
-                height: width
-                radius: width / 2
-                color: model.displayColor
-                opacity: model.on && model.reachable ? 1.0 : 0.2
-                border.width: model.on ? 0 : 1
-                border.color: Theme.secondaryColor
+                archetype: model.archetype
+                lightColor: model.displayColor
+                on: model.on && model.reachable
             }
 
             Column {

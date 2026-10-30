@@ -31,7 +31,7 @@ What's in `core/`:
   Lamps with several spots (e.g. Hue Runner) are separate devices with one light each; only
   their model ids (the lamp's 12NC plus `_01`, `_02`, ...) say they belong together. Within a room
   those become a fixture, with an id that works wherever a light id does.
-- `HueRoomModel`, `HueLightModel`, `HueSceneModel`: list models over the store. When a change
+- `HueRoomModel`, `HueLightModel`, `HueSceneModel`, `HueSensorModel`: list models over the store. When a change
   doesn't add, remove or reorder rows, only the rows it touches are updated, so delegates (and a
   slider under the finger) survive the stream's updates.
 - `HueCommandQueue`: about 10 light commands a second, and at most one a second per group, as
@@ -72,11 +72,12 @@ before it succeeds. `--cert`/`--key` serve HTTPS, to try the certificate pinning
 
 ## Roadmap
 
-- **Next:** run it on a device against a real bridge (the parts the tests can't cover: mDNS inside
-  Sailjail, the real certificate, the stream across suspend); room and light icons by archetype;
-  translations.
-- **Then:** creating and editing scenes; sensors (motion, temperature, battery); renaming lights and
-  rooms; more than one bridge; storing the app key in Sailfish Secrets.
+- **Done since the first version:** lamps with several spots as one light; sensors and switches
+  (motion, temperature, light level, buttons, batteries; motion sensors can be switched off); icons
+  by lamp type.
+- **Next:** room icons by archetype; translations; creating and editing scenes.
+- **Then:** renaming lights and rooms; motion sensor sensitivity; more than one bridge; storing the
+  app key in Sailfish Secrets.
 - **Maybe:** automations (`behavior_instance`), remote access through Philips' cloud API (needs a
   registered app), a background daemon for notifications from sensors.
 - **Out of scope:** Entertainment areas / sync, firmware updates, adding new lights.
