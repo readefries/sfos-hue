@@ -41,12 +41,15 @@ private:
     QString m_groupId;
 };
 
-// Lights of one room or zone (groupId), just one light (lightId), or all of them.
+// Lights of one room or zone (groupId), just one light (lightId), or all of them. Lamps with
+// several spots are one row (a fixture, see HueResourceStore) unless groupFixtures is off; then a
+// fixture's lightId lists its spots.
 class HueLightModel : public HueListModel
 {
     Q_OBJECT
     Q_PROPERTY(QString groupId READ groupId WRITE setGroupId NOTIFY groupIdChanged)
     Q_PROPERTY(QString lightId READ lightId WRITE setLightId NOTIFY lightIdChanged)
+    Q_PROPERTY(bool groupFixtures READ groupFixtures WRITE setGroupFixtures NOTIFY groupFixturesChanged)
 public:
     enum Roles {
         IdRole = Qt::UserRole + 1,
@@ -61,7 +64,8 @@ public:
         MirekRole,
         MirekMinRole,
         MirekMaxRole,
-        DisplayColorRole    // what the lamp roughly looks like, for swatches
+        DisplayColorRole,   // what the lamp roughly looks like, for swatches
+        LightCountRole      // more than 1 for a fixture
     };
 
     explicit HueLightModel(QObject *parent = nullptr);
@@ -71,6 +75,8 @@ public:
     void setGroupId(const QString &groupId);
     QString lightId() const { return m_lightId; }
     void setLightId(const QString &lightId);
+    bool groupFixtures() const { return m_groupFixtures; }
+    void setGroupFixtures(bool groupFixtures);
 
     // Shared with HueClient: the colour a light shows right now.
     static QColor displayColor(const QJsonObject &light);
@@ -78,6 +84,7 @@ public:
 signals:
     void groupIdChanged();
     void lightIdChanged();
+    void groupFixturesChanged();
 
 protected:
     QStringList collectIds() const override;
@@ -85,8 +92,11 @@ protected:
     QVariant dataFor(const QString &id, int role) const override;
 
 private:
+    QVariant fixtureData(const QString &id, int role) const;
+
     QString m_groupId;
     QString m_lightId;
+    bool m_groupFixtures = true;
 };
 
 // Scenes of one room or zone.

@@ -74,7 +74,8 @@ public:
     Q_INVOKABLE void forget();
     Q_INVOKABLE void reconnect();
 
-    // id: a light or a grouped_light (rooms and zones pass their groupedLightId).
+    // id: a light, a fixture (all its lights) or a grouped_light (rooms and zones pass their
+    // groupedLightId).
     Q_INVOKABLE void setOn(const QString &id, bool on);
     Q_INVOKABLE void setBrightness(const QString &id, double brightness);
     Q_INVOKABLE void setColor(const QString &id, const QColor &color);
@@ -96,7 +97,7 @@ signals:
     void paired();
 
 private:
-    void command(const QString &id, const QJsonObject &body, const QJsonObject &optimistic = QJsonObject());
+    void command(const QString &target, const QJsonObject &body, const QJsonObject &optimistic = QJsonObject());
     void applyConfig();
     void updateState();
     void setLastError(const QString &error);

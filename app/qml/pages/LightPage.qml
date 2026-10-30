@@ -15,6 +15,14 @@ Page {
         lightId: page.lightId
     }
 
+    // For a lamp with several spots: each of them.
+    LightModel {
+        id: spots
+        store: hue.store
+        lightId: page.lightId
+        groupFixtures: false
+    }
+
     SilicaFlickable {
         id: flickable
         anchors.fill: parent
@@ -107,6 +115,18 @@ Page {
                         currentColor: model.displayColor
                         onColorPicked: hue.setColor(model.resourceId, color)
                     }
+                }
+            }
+
+            SectionHeader {
+                text: qsTr("Spots")
+                visible: spots.count > 1
+            }
+
+            Repeater {
+                model: spots.count > 1 ? spots : null
+                delegate: LightDelegate {
+                    width: column.width
                 }
             }
         }

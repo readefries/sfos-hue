@@ -28,6 +28,9 @@ What's in `core/`:
 - `HueResourceStore`: every v2 resource by id, plus the relations the UI needs (room → devices →
   lights, zone → lights, room → grouped_light, light → device → zigbee_connectivity, scenes of a
   group).
+  Lamps with several spots (e.g. Hue Runner) are separate devices with one light each; only
+  their model ids (the lamp's 12NC plus `_01`, `_02`, ...) say they belong together. Within a room
+  those become a fixture, with an id that works wherever a light id does.
 - `HueRoomModel`, `HueLightModel`, `HueSceneModel`: list models over the store. When a change
   doesn't add, remove or reorder rows, only the rows it touches are updated, so delegates (and a
   slider under the finger) survive the stream's updates.

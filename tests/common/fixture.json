@@ -15,7 +15,8 @@
     {
       "id": "room-bed", "type": "room",
       "metadata": {"name": "Bedroom", "archetype": "bedroom"},
-      "children": [{"rid": "dev-3", "rtype": "device"}],
+      "children": [{"rid": "dev-3", "rtype": "device"}, {"rid": "dev-spot-1", "rtype": "device"},
+                   {"rid": "dev-spot-2", "rtype": "device"}, {"rid": "dev-spot-3", "rtype": "device"}],
       "services": [{"rid": "gl-bed", "rtype": "grouped_light"}]
     },
     {
@@ -70,6 +71,54 @@
       "color_temperature": {"mirek": 400, "mirek_valid": true,
                             "mirek_schema": {"mirek_minimum": 153, "mirek_maximum": 454}}
     },
+    {
+      "id": "dev-spot-1", "type": "device",
+      "metadata": {"name": "Hue Runner spot 1", "archetype": "double_spot"},
+      "product_data": {"model_id": "929003046301_02", "product_name": "Hue Runner spot"},
+      "services": [{"rid": "light-spot-1", "rtype": "light"}, {"rid": "zc-spot-1", "rtype": "zigbee_connectivity"}]
+    },
+    {
+      "id": "light-spot-1", "type": "light",
+      "owner": {"rid": "dev-spot-1", "rtype": "device"},
+      "metadata": {"name": "Hue Runner spot 1", "archetype": "double_spot"},
+      "on": {"on": true},
+      "dimming": {"brightness": 30.0},
+      "color_temperature": {"mirek": 369, "mirek_valid": true,
+                            "mirek_schema": {"mirek_minimum": 153, "mirek_maximum": 454}}
+    },
+    {"id": "zc-spot-1", "type": "zigbee_connectivity", "owner": {"rid": "dev-spot-1", "rtype": "device"}, "status": "connected"},
+    {
+      "id": "dev-spot-2", "type": "device",
+      "metadata": {"name": "Hue Runner spot 2", "archetype": "double_spot"},
+      "product_data": {"model_id": "929003046301_03", "product_name": "Hue Runner spot"},
+      "services": [{"rid": "light-spot-2", "rtype": "light"}, {"rid": "zc-spot-2", "rtype": "zigbee_connectivity"}]
+    },
+    {
+      "id": "light-spot-2", "type": "light",
+      "owner": {"rid": "dev-spot-2", "rtype": "device"},
+      "metadata": {"name": "Hue Runner spot 2", "archetype": "double_spot"},
+      "on": {"on": true},
+      "dimming": {"brightness": 50.0},
+      "color_temperature": {"mirek": 369, "mirek_valid": true,
+                            "mirek_schema": {"mirek_minimum": 153, "mirek_maximum": 454}}
+    },
+    {"id": "zc-spot-2", "type": "zigbee_connectivity", "owner": {"rid": "dev-spot-2", "rtype": "device"}, "status": "connected"},
+    {
+      "id": "dev-spot-3", "type": "device",
+      "metadata": {"name": "Hue Runner spot 3", "archetype": "double_spot"},
+      "product_data": {"model_id": "929003046301_01", "product_name": "Hue Runner spot"},
+      "services": [{"rid": "light-spot-3", "rtype": "light"}, {"rid": "zc-spot-3", "rtype": "zigbee_connectivity"}]
+    },
+    {
+      "id": "light-spot-3", "type": "light",
+      "owner": {"rid": "dev-spot-3", "rtype": "device"},
+      "metadata": {"name": "Hue Runner spot 3", "archetype": "double_spot"},
+      "on": {"on": false},
+      "dimming": {"brightness": 10.0},
+      "color_temperature": {"mirek": 369, "mirek_valid": true,
+                            "mirek_schema": {"mirek_minimum": 153, "mirek_maximum": 454}}
+    },
+    {"id": "zc-spot-3", "type": "zigbee_connectivity", "owner": {"rid": "dev-spot-3", "rtype": "device"}, "status": "connected"},
     {"id": "zc-1", "type": "zigbee_connectivity", "owner": {"rid": "dev-1", "rtype": "device"}, "status": "connected"},
     {"id": "zc-2", "type": "zigbee_connectivity", "owner": {"rid": "dev-2", "rtype": "device"}, "status": "connected"},
     {"id": "zc-3", "type": "zigbee_connectivity", "owner": {"rid": "dev-3", "rtype": "device"}, "status": "connectivity_issue"},

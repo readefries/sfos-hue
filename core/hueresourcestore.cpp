@@ -3,6 +3,8 @@
 
 #include "huejson.h"
 
+#include <QRegularExpression>
+
 namespace {
 const QString kId = QStringLiteral("id");
 const QString kType = QStringLiteral("type");
@@ -90,6 +92,25 @@ QString HueResourceStore::type(const QString &id) const
 
 QString HueResourceStore::name(const QString &id) const
 {
+    if (isFixtureId(id)) {
+        // What the lights' names have in common ("Hue Runner spot" for "Hue Runner spot 1", ...),
+        // or the product's name if they were named apart.
+        const QStringList lights = lightsOfFixture(id);
+        QString common = lights.isEmpty() ? QString() : name(lights.first());
+        for (const QString &light : lights) {
+            const QString other = name(light);
+            int n = 0;
+            while (n < common.size() && n < other.size() && common.at(n) == other.at(n))
+                ++n;
+            common.truncate(n);
+        }
+        common = common.remove(QRegularExpression(QStringLiteral("[\\s\\d#.,:_-]+$")));
+        if (common.size() >= 3)
+            return common;
+        const QJsonObject owner = m_resources.value(lights.value(0)).value(QStringLiteral("owner")).toObject();
+        return HueJson::at(m_resources.value(owner.value(QStringLiteral("rid")).toString()),
+                           {QStringLiteral("product_data"), QStringLiteral("product_name")}).toString();
+    }
     return HueJson::at(m_resources.value(id), {QStringLiteral("metadata"), QStringLiteral("name")}).toString();
 }
 
@@ -163,4 +184,67 @@ QStringList HueResourceStore::scenesOf(const QString &groupId) const
             scenes.append(it.key());
     }
     return scenes;
+}
+
+bool HueResourceStore::isFixtureId(const QString &id)
+{
+    return id.startsWith(QLatin1String("fixture:"));
+}
+
+QString HueResourceStore::fixtureId(const QString &productNumber, const QString &groupId)
+{
+    return QStringLiteral("fixture:%1:%2").arg(productNumber, groupId);
+}
+
+QString HueResourceStore::fixtureProductOf(const QString &lightId) const
+{
+    static const QRegularExpression pattern(QStringLiteral("^(\\d{12})_\\d{2}$"));
+    const QJsonObject owner = m_resources.value(lightId).value(QStringLiteral("owner")).toObject();
+    const QString model = HueJson::at(m_resources.value(owner.value(QStringLiteral("rid")).toString()),
+                                      {QStringLiteral("product_data"), QStringLiteral("model_id")}).toString();
+    const QRegularExpressionMatch match = pattern.match(model);
+    return match.hasMatch() ? match.captured(1) : QString();
+}
+
+QStringList HueResourceStore::lightsOfFixture(const QString &fixtureId) const
+{
+    const QStringList parts = fixtureId.split(QLatin1Char(':'));
+    if (parts.size() != 3 || parts.at(1).isEmpty())
+        return QStringList();
+    const QString groupId = parts.at(2);
+    const QStringList candidates = groupId.isEmpty() ? idsOfType(QStringLiteral("light")) : lightsOf(groupId);
+    QStringList lights;
+    for (const QString &light : candidates) {
+        if (fixtureProductOf(light) == parts.at(1))
+            lights.append(light);
+    }
+    lights.sort();
+    return lights;
+}
+
+QStringList HueResourceStore::withFixtures(const QStringList &lights, const QString &groupId) const
+{
+    QHash<QString, int> members;
+    for (const QString &light : lights) {
+        const QString product = fixtureProductOf(light);
+        if (!product.isEmpty())
+            ++members[product];
+    }
+    QStringList result;
+    for (const QString &light : lights) {
+        const QString product = fixtureProductOf(light);
+        if (product.isEmpty() || members.value(product) < 2) {
+            result.append(light);
+        } else {
+            const QString fixture = fixtureId(product, groupId);
+            if (!result.contains(fixture))
+                result.append(fixture);
+        }
+    }
+    return result;
+}
+
+QStringList HueResourceStore::resolveLights(const QString &id) const
+{
+    return isFixtureId(id) ? lightsOfFixture(id) : QStringList(id);
 }

@@ -50,6 +50,20 @@ public:
     bool isReachable(const QString &lightId) const;
     QStringList scenesOf(const QString &groupId) const;
 
+    // Lamps with several spots (e.g. Hue Runner) are separate devices, one light each; only their
+    // model ids tell they belong together: the lamp's 12NC product number plus _01, _02, ...
+    // A fixture id ("fixture:<12NC>:<room or zone id>") stands for those lights within one group
+    // (or all lights, with an empty group), and works wherever a light id does.
+    static bool isFixtureId(const QString &id);
+    static QString fixtureId(const QString &productNumber, const QString &groupId);
+    // The product number of the lamp a light is part of; empty for a light on its own.
+    QString fixtureProductOf(const QString &lightId) const;
+    QStringList lightsOfFixture(const QString &fixtureId) const;
+    // lights, with the members of each fixture of two or more replaced by the fixture's id.
+    QStringList withFixtures(const QStringList &lights, const QString &groupId) const;
+    // A fixture's lights, or just the id itself.
+    QStringList resolveLights(const QString &id) const;
+
 signals:
     void resourcesReset();
     void resourceAdded(const QString &id, const QString &type);

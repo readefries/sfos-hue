@@ -188,8 +188,14 @@ void HueClient::setApplicationActive(bool active)
     m_inactiveSince = 0;
 }
 
-void HueClient::command(const QString &id, const QJsonObject &body, const QJsonObject &optimistic)
+void HueClient::command(const QString &target, const QJsonObject &body, const QJsonObject &optimistic)
 {
+    if (HueResourceStore::isFixtureId(target)) {
+        for (const QString &light : m_store->resolveLights(target))
+            command(light, body, optimistic);
+        return;
+    }
+    const QString &id = target;
     const QString type = m_store->type(id);
     if (type.isEmpty())
         return;
@@ -216,6 +222,12 @@ void HueClient::setBrightness(const QString &id, double brightness)
 
 void HueClient::setColor(const QString &id, const QColor &color)
 {
+    // Each spot of a fixture clamps to its own gamut.
+    if (HueResourceStore::isFixtureId(id)) {
+        for (const QString &light : m_store->resolveLights(id))
+            setColor(light, color);
+        return;
+    }
     const QJsonObject resource = m_store->resource(id);
     QPointF xy = HueColor::rgbToXy(color);
     const QJsonValue gamut = HueJson::at(resource, {QStringLiteral("color"), QStringLiteral("gamut")});

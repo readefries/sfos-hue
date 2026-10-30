@@ -478,7 +478,7 @@ private slots:
         store.reset(fixtureData());
         HueLightModel lights;
         lights.setStore(&store);
-        QCOMPARE(lights.rowCount(), 3);
+        QCOMPARE(lights.rowCount(), 4); // three lights and the three-spot lamp
         lights.setGroupId(QStringLiteral("room-living"));
         QCOMPARE(lights.rowCount(), 2);
         QCOMPARE(lights.idAt(0), QStringLiteral("light-2")); // Ceiling, Floor lamp
@@ -507,6 +507,53 @@ private slots:
         QCOMPARE(scenes.data(scenes.index(1), HueSceneModel::NameRole).toString(), QStringLiteral("Sunset"));
         QVERIFY(scenes.data(scenes.index(1), HueSceneModel::ActiveRole).toBool());
         QVERIFY(!scenes.data(scenes.index(0), HueSceneModel::ActiveRole).toBool());
+    }
+
+    void fixtures()
+    {
+        HueResourceStore store;
+        store.reset(fixtureData());
+        const QString fixture = HueResourceStore::fixtureId(QStringLiteral("929003046301"), QStringLiteral("room-bed"));
+        QCOMPARE(store.fixtureProductOf(QStringLiteral("light-spot-1")), QStringLiteral("929003046301"));
+        QVERIFY(store.fixtureProductOf(QStringLiteral("light-3")).isEmpty());
+        QCOMPARE(store.lightsOfFixture(fixture).size(), 3);
+        QCOMPARE(store.name(fixture), QStringLiteral("Hue Runner spot"));
+
+        HueLightModel lights;
+        lights.setStore(&store);
+        lights.setGroupId(QStringLiteral("room-bed"));
+        QCOMPARE(lights.rowCount(), 2);
+        QCOMPARE(lights.idAt(1), fixture); // Bedside, Hue Runner spot
+        auto value = [&lights](int row, int role) { return lights.data(lights.index(row), role); };
+        QCOMPARE(value(1, HueLightModel::NameRole).toString(), QStringLiteral("Hue Runner spot"));
+        QCOMPARE(value(1, HueLightModel::LightCountRole).toInt(), 3);
+        QVERIFY(value(1, HueLightModel::OnRole).toBool());
+        QCOMPARE(value(1, HueLightModel::BrightnessRole).toDouble(), 40.0); // of the two that are on
+        QVERIFY(value(1, HueLightModel::SupportsTemperatureRole).toBool());
+        QVERIFY(!value(1, HueLightModel::SupportsColorRole).toBool());
+
+        // A change to one spot updates the lamp's row.
+        QSignalSpy changed(&lights, &QAbstractItemModel::dataChanged);
+        store.applyUpdate(json(R"({"id": "light-spot-1", "on": {"on": false}})"));
+        store.applyUpdate(json(R"({"id": "light-spot-2", "on": {"on": false}})"));
+        QCOMPARE(changed.count(), 2);
+        QVERIFY(!value(1, HueLightModel::OnRole).toBool());
+
+        // One spot alone is just a light.
+        QCOMPARE(store.withFixtures(QStringList(QStringLiteral("light-spot-1")), QString()),
+                 QStringList(QStringLiteral("light-spot-1")));
+
+        // The lamp's page: the lamp itself, and its spots.
+        HueLightModel lamp;
+        lamp.setStore(&store);
+        lamp.setLightId(fixture);
+        QCOMPARE(lamp.rowCount(), 1);
+        HueLightModel spots;
+        spots.setStore(&store);
+        spots.setGroupFixtures(false);
+        spots.setLightId(fixture);
+        QCOMPARE(spots.rowCount(), 3);
+        QCOMPARE(spots.idAt(0), QStringLiteral("light-spot-1"));
     }
 
     void clientPairsAndControls()
@@ -546,6 +593,13 @@ private slots:
             client.recallScene(QStringLiteral("scene-relax"));
             QTRY_COMPARE(fake.puts().size(), 3);
             QCOMPARE(fake.puts().last().path, QByteArray("/clip/v2/resource/scene/scene-relax"));
+
+            // A lamp with three spots: every spot gets it.
+            client.setMirek(HueResourceStore::fixtureId(QStringLiteral("929003046301"), QStringLiteral("room-bed")), 250);
+            QTRY_COMPARE(fake.puts().size(), 6);
+            for (int i = 3; i < 6; ++i)
+                QVERIFY(fake.puts().at(i).path.startsWith("/clip/v2/resource/light/light-spot-"));
+            QCOMPARE(at(client.store()->resource(QStringLiteral("light-spot-3")), "color_temperature", "mirek").toInt(), 250);
         }
         {
             // Remembered, and connects by itself.

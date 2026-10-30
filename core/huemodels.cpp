@@ -114,6 +114,7 @@ QHash<int, QByteArray> HueLightModel::roleNames() const
         {MirekMinRole, "mirekMin"},
         {MirekMaxRole, "mirekMax"},
         {DisplayColorRole, "displayColor"},
+        {LightCountRole, "lightCount"},
     };
 }
 
@@ -135,6 +136,15 @@ void HueLightModel::setLightId(const QString &lightId)
     refresh();
 }
 
+void HueLightModel::setGroupFixtures(bool groupFixtures)
+{
+    if (m_groupFixtures == groupFixtures)
+        return;
+    m_groupFixtures = groupFixtures;
+    emit groupFixturesChanged();
+    refresh();
+}
+
 QColor HueLightModel::displayColor(const QJsonObject &light)
 {
     const QJsonValue ct = light.value(QStringLiteral("color_temperature"));
@@ -148,19 +158,87 @@ QColor HueLightModel::displayColor(const QJsonObject &light)
 
 QStringList HueLightModel::collectIds() const
 {
-    if (!m_lightId.isEmpty())
-        return m_store->contains(m_lightId) ? QStringList(m_lightId) : QStringList();
-    return sortedByName(m_groupId.isEmpty() ? m_store->idsOfType(QStringLiteral("light"))
-                                            : m_store->lightsOf(m_groupId));
+    if (!m_lightId.isEmpty()) {
+        const QStringList lights = m_store->resolveLights(m_lightId);
+        if (!HueResourceStore::isFixtureId(m_lightId))
+            return m_store->contains(m_lightId) ? lights : QStringList();
+        if (lights.isEmpty())
+            return QStringList();
+        return m_groupFixtures ? QStringList(m_lightId) : sortedByName(lights);
+    }
+    const QStringList lights = m_groupId.isEmpty() ? m_store->idsOfType(QStringLiteral("light"))
+                                                   : m_store->lightsOf(m_groupId);
+    return sortedByName(m_groupFixtures ? m_store->withFixtures(lights, m_groupId) : lights);
 }
 
 QStringList HueLightModel::dependenciesOf(const QString &id) const
 {
-    return QStringList() << id << m_store->connectivityOfLight(id);
+    QStringList dependencies;
+    for (const QString &light : m_store->resolveLights(id))
+        dependencies << light << m_store->connectivityOfLight(light);
+    return dependencies;
+}
+
+QVariant HueLightModel::fixtureData(const QString &id, int role) const
+{
+    const QStringList lights = m_store->resolveLights(id);
+    switch (role) {
+    case IdRole: return id;
+    case NameRole: return m_store->name(id);
+    case LightCountRole: return lights.size();
+    case BrightnessRole: {
+        // Of the spots that are on, like the bridge does for rooms.
+        double sum = 0, sumOn = 0;
+        int on = 0;
+        for (const QString &light : lights) {
+            const double brightness = dataFor(light, BrightnessRole).toDouble();
+            sum += brightness;
+            if (dataFor(light, OnRole).toBool()) {
+                sumOn += brightness;
+                ++on;
+            }
+        }
+        return on > 0 ? sumOn / on : sum / lights.size();
+    }
+    case OnRole:
+    case SupportsDimmingRole:
+    case SupportsColorRole:
+    case SupportsTemperatureRole:
+        for (const QString &light : lights) {
+            if (dataFor(light, role).toBool())
+                return true;
+        }
+        return false;
+    case ReachableRole:
+        for (const QString &light : lights) {
+            if (!dataFor(light, role).toBool())
+                return false;
+        }
+        return true;
+    case DisplayColorRole:
+        for (const QString &light : lights) {
+            if (dataFor(light, OnRole).toBool())
+                return dataFor(light, role);
+        }
+        return dataFor(lights.first(), role);
+    case MirekRole:
+    case MirekMinRole:
+    case MirekMaxRole:
+        for (const QString &light : lights) {
+            if (dataFor(light, SupportsTemperatureRole).toBool())
+                return dataFor(light, role);
+        }
+        return dataFor(lights.first(), role);
+    }
+    return dataFor(lights.first(), role);
 }
 
 QVariant HueLightModel::dataFor(const QString &id, int role) const
 {
+    if (HueResourceStore::isFixtureId(id)) {
+        const QStringList lights = m_store->resolveLights(id);
+        return lights.isEmpty() ? QVariant() : fixtureData(id, role);
+    }
     const QJsonObject light = m_store->resource(id);
     switch (role) {
     case IdRole: return id;
@@ -179,6 +257,7 @@ QVariant HueLightModel::dataFor(const QString &id, int role) const
     case MirekMinRole: return at(light, "color_temperature", "mirek_schema", "mirek_minimum").toInt(153);
     case MirekMaxRole: return at(light, "color_temperature", "mirek_schema", "mirek_maximum").toInt(500);
     case DisplayColorRole: return displayColor(light);
+    case LightCountRole: return 1;
     }
     return QVariant();
 }

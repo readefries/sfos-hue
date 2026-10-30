@@ -50,10 +50,11 @@ ListItem {
                 }
                 Label {
                     width: parent.width
-                    visible: !model.reachable
-                    text: qsTr("Unreachable")
+                    visible: !model.reachable || model.lightCount > 1
+                    text: !model.reachable ? qsTr("Unreachable") : qsTr("%1 spots").arg(model.lightCount)
                     font.pixelSize: Theme.fontSizeExtraSmall
-                    color: Theme.errorColor
+                    color: !model.reachable ? Theme.errorColor
+                                            : item.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 }
             }
 
