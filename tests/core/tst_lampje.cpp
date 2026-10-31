@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "fakehuebridge.h"
+#include "fakemqttbroker.h"
 
 #include "huebridge.h"
 #include "hueclient.h"
@@ -12,6 +13,7 @@
 #include "huepairing.h"
 #include "hueresourcestore.h"
 #include "huessestream.h"
+#include "mqttclient.h"
 
 #include <QElapsedTimer>
 #include <QNetworkAccessManager>
@@ -102,6 +104,108 @@ private slots:
         QCOMPARE(events.at(0).data, QByteArray("[1]"));
         QCOMPARE(events.at(1).data, QByteArray("a\nb"));
         QVERIFY(events.at(1).id.isEmpty());
+    }
+
+    void mqttPackets()
+    {
+        const QByteArray publish = Mqtt::publishPacket(QStringLiteral("a/b"), QByteArray(300, 'x'));
+        QCOMPARE(quint8(publish.at(0)), quint8(0x30));
+        // 2 + 3 + 300 = 305 bytes: two length bytes.
+        QCOMPARE(quint8(publish.at(1)), quint8(305 % 128 | 0x80));
+        QCOMPARE(quint8(publish.at(2)), quint8(305 / 128));
+
+        Mqtt::Parser parser;
+        QList<Mqtt::Packet> packets = parser.feed(publish.left(2));
+        packets += parser.feed(publish.mid(2, 100));
+        QCOMPARE(packets.size(), 0);
+        packets += parser.feed(publish.mid(102) + Mqtt::pingPacket());
+        QCOMPARE(packets.size(), 2);
+        QString topic;
+        QByteArray payload;
+        QVERIFY(Mqtt::parsePublish(packets.at(0), &topic, &payload));
+        QCOMPARE(topic, QStringLiteral("a/b"));
+        QCOMPARE(payload, QByteArray(300, 'x'));
+        QCOMPARE(packets.at(1).type, int(Mqtt::PingReq));
+
+        // QoS 1 carries a packet id after the topic.
+        Mqtt::Packet qos1;
+        qos1.type = Mqtt::Publish;
+        qos1.flags = 0x02;
+        qos1.body = QByteArray::fromHex("0001") + "t" + QByteArray::fromHex("0007") + "data";
+        QVERIFY(Mqtt::parsePublish(qos1, &topic, &payload));
+        QCOMPARE(payload, QByteArray("data"));
+
+        const QByteArray connect = Mqtt::connectPacket(QStringLiteral("id"), QStringLiteral("u"), QStringLiteral("p"), 60);
+        QCOMPARE(connect.toHex(), QByteArray("101400044d51545404c2003c00026964000175000170"));
+
+        parser.reset();
+        parser.feed(QByteArray::fromHex("30ffffffff01"));
+        QVERIFY(parser.failed());
+    }
+
+    void mqttClient()
+    {
+        FakeMqttBroker broker;
+        broker.retained.insert(QStringLiteral("z/retained"), "kept");
+        MqttClient client;
+        client.setConfig(broker.config(QStringLiteral("lampje"), QStringLiteral("secret")));
+        client.setReconnectDelays(10, 50);
+        QSignalSpy messages(&client, &MqttClient::messageReceived);
+        client.subscribe(QStringLiteral("z/#"));
+        QVERIFY(!client.publish(QStringLiteral("z/x"), "early"));
+        client.start();
+        QTRY_COMPARE(client.state(), MqttClient::Connected);
+        QCOMPARE(broker.user, QStringLiteral("lampje"));
+        QCOMPARE(broker.password, QStringLiteral("secret"));
+        QTRY_COMPARE(messages.size(), 1);
+        QCOMPARE(messages.at(0).at(1).toByteArray(), QByteArray("kept"));
+
+        QVERIFY(client.publish(QStringLiteral("z/x"), "hello"));
+        QTRY_COMPARE(broker.publishedTo(QStringLiteral("z/x")).size(), 1);
+        broker.publish(QStringLiteral("z/device"), "{}");
+        broker.publish(QStringLiteral("other"), "{}");
+        QTRY_COMPARE(messages.size(), 2); // z/device, not other
+        QCOMPARE(messages.at(1).at(0).toString(), QStringLiteral("z/device"));
+
+        // Lost: reconnects and subscribes again.
+        broker.dropClients();
+        QTRY_COMPARE(broker.connects, 2);
+        QTRY_COMPARE(client.state(), MqttClient::Connected);
+        QTRY_COMPARE(broker.subscriptions, QStringList() << QStringLiteral("z/#") << QStringLiteral("z/#"));
+
+        client.stop();
+        QCOMPARE(client.state(), MqttClient::Idle);
+    }
+
+    void mqttClientRefused()
+    {
+        FakeMqttBroker broker;
+        broker.connAckCode = 4;
+        MqttClient client;
+        client.setConfig(broker.config(QStringLiteral("lampje"), QStringLiteral("wrong")));
+        client.setReconnectDelays(10, 50);
+        QSignalSpy errors(&client, &MqttClient::errorOccurred);
+        client.start();
+        QTRY_COMPARE(client.state(), MqttClient::Refused);
+        QVERIFY(errors.size() >= 1);
+        QTest::qWait(100);
+        QCOMPARE(broker.connects, 1); // no retrying with a bad password
+        QCOMPARE(client.state(), MqttClient::Refused);
+    }
+
+    void mqttKeepAlive()
+    {
+        FakeMqttBroker broker;
+        broker.answerPings = false;
+        MqttClient client;
+        client.setConfig(broker.config());
+        client.setReconnectDelays(10, 50);
+        client.setKeepAlive(1);
+        client.start();
+        QTRY_COMPARE(client.state(), MqttClient::Connected);
+        // A ping after a second, no pong a second later: gone, so connect again.
+        QTRY_COMPARE_WITH_TIMEOUT(broker.connects, 2, 4000);
+        QVERIFY(broker.pings >= 1);
     }
 
     void storeRelations()

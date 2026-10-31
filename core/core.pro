@@ -18,7 +18,8 @@ HEADERS += \
     huepairing.h \
     hueresourcestore.h \
     huessestream.h \
-    huetls.h
+    huetls.h \
+    mqttclient.h
 
 SOURCES += \
     huebridge.cpp \
@@ -33,4 +34,5 @@ SOURCES += \
     huepairing.cpp \
     hueresourcestore.cpp \
     huessestream.cpp \
-    huetls.cpp
+    huetls.cpp \
+    mqttclient.cpp
