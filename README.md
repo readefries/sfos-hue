@@ -59,6 +59,29 @@ sfdk -c target=SailfishOS-5.1.0.11-aarch64 build ..     # tests run in %check
 `scripts/deploy.sh [ssh-host]` builds and copies the RPM to the phone; `scripts/docker-build.sh
 [release] [arch]` builds in the community SDK image, as CI does.
 
+## Releasing
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `ci:`,
+...). After every green build on `main`, CI runs [semantic-release](https://semantic-release.gitbook.io/):
+it picks the next version from the commits since the last `vX.Y.Z` tag (`fix:` patch, `feat:` minor,
+`BREAKING CHANGE:` major), builds the RPMs for aarch64, armv7hl and i486 with that version, and
+creates the tag plus a GitHub release with the notes, the RPMs, `SHA256SUMS` and a build provenance
+attestation. It commits nothing; the version in the spec is a placeholder that release builds
+replace with the tag's.
+
+### Installing a release from GitHub
+
+Download `harbour-lampje-<version>-1.<arch>.rpm` for your device (`uname -m`: `aarch64` on recent
+devices) and check where it came from before installing it:
+
+```sh
+sha256sum -c --ignore-missing SHA256SUMS
+gh attestation verify harbour-lampje-<version>-1.aarch64.rpm -R readefries/sfos-hue  # built here, by CI
+devel-su pkcon install-local ./harbour-lampje-<version>-1.aarch64.rpm
+```
+
+Packages installed this way don't update by themselves.
+
 ## Translations
 
 The build runs lupdate over `app/` and `core/`, adding new strings to `app/translations/*.ts`.
