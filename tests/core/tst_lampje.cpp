@@ -589,6 +589,53 @@ private slots:
         QCOMPARE(value(1, HueSensorModel::LastButtonEventRole).toString(), QStringLiteral("initial_press"));
     }
 
+    void clientScenes()
+    {
+        FakeHueBridge fake;
+        fake.pairReplies << QByteArray(R"([{"success": {"username": "client-key"}}])");
+        QTemporaryDir dir;
+        HueClient client(dir.path() + QStringLiteral("/lampje.conf"));
+        client.pair(fake.host(), QStringLiteral("001788fffe00cafe"), QStringLiteral("Fake bridge"));
+        QTRY_COMPARE(client.state(), HueClient::Connected);
+
+        // The living room: the floor lamp on in a colour, the ceiling off.
+        QSignalSpy created(&client, &HueClient::sceneCreated);
+        client.createScene(QStringLiteral("room-living"), QStringLiteral("  Evening  "));
+        QTRY_COMPARE(created.count(), 1);
+        QCOMPARE(created.first().first().toString(), QStringLiteral("scene-created"));
+        const FakeHueBridge::Request post = fake.withMethod("POST").last();
+        QCOMPARE(post.path, QByteArray("/clip/v2/resource/scene"));
+        const QJsonObject scene = QJsonDocument::fromJson(post.body).object();
+        QCOMPARE(at(scene, "metadata", "name").toString(), QStringLiteral("Evening"));
+        QCOMPARE(at(scene, "group", "rtype").toString(), QStringLiteral("room"));
+        QJsonObject floor, ceiling;
+        for (const QJsonValue &value : scene.value(QStringLiteral("actions")).toArray()) {
+            const QJsonObject entry = value.toObject();
+            const QString target = at(entry, "target", "rid").toString();
+            (target == QLatin1String("light-1") ? floor : ceiling) = entry.value(QStringLiteral("action")).toObject();
+        }
+        QVERIFY(at(floor, "on", "on").toBool());
+        QCOMPARE(at(floor, "dimming", "brightness").toDouble(), 80.0);
+        QCOMPARE(HueJson::at(floor, {QStringLiteral("color"), QStringLiteral("xy"), QStringLiteral("x")}).toDouble(), 0.6);
+        QVERIFY(!floor.contains(QStringLiteral("color_temperature")));
+        QVERIFY(!at(ceiling, "on", "on").toBool());
+        QCOMPARE(ceiling.keys(), QStringList(QStringLiteral("on")));
+
+        client.renameScene(QStringLiteral("scene-relax"), QStringLiteral("Unwind"));
+        QCOMPARE(client.store()->name(QStringLiteral("scene-relax")), QStringLiteral("Unwind"));
+        QTRY_COMPARE(fake.puts().size(), 1);
+        QCOMPARE(fake.puts().last().body, QByteArray(R"({"metadata":{"name":"Unwind"}})"));
+
+        client.storeScene(QStringLiteral("scene-relax"));
+        QTRY_COMPARE(fake.puts().size(), 2);
+        const QJsonObject stored = QJsonDocument::fromJson(fake.puts().last().body).object();
+        QCOMPARE(stored.value(QStringLiteral("actions")).toArray().size(), 2);
+
+        client.deleteScene(QStringLiteral("scene-relax"));
+        QTRY_VERIFY(!client.store()->contains(QStringLiteral("scene-relax")));
+        QCOMPARE(fake.withMethod("DELETE").last().path, QByteArray("/clip/v2/resource/scene/scene-relax"));
+    }
+
     void clientPairsAndControls()
     {
         FakeHueBridge fake;

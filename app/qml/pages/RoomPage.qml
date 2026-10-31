@@ -26,6 +26,17 @@ Page {
         anchors.fill: parent
         model: lights
 
+        PullDownMenu {
+            MenuItem {
+                text: qsTr("New scene from current lights")
+                enabled: hue.state === HueClient.Connected
+                onClicked: pageStack.push(Qt.resolvedUrl("SceneDialog.qml"), {
+                                              groupId: page.groupId,
+                                              groupName: page.groupName
+                                          })
+            }
+        }
+
         header: Column {
             width: list.width
 
@@ -67,6 +78,16 @@ Page {
                 visible: scenes.count > 0
             }
 
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * x
+                visible: scenes.count > 0
+                wrapMode: Text.Wrap
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryHighlightColor
+                text: qsTr("Tap to switch to a scene; press and hold to change it")
+            }
+
             Grid {
                 id: sceneGrid
                 x: Theme.horizontalPageMargin
@@ -81,6 +102,12 @@ Page {
                         width: (sceneGrid.width - (sceneGrid.columns - 1) * sceneGrid.spacing) / sceneGrid.columns
                         height: Theme.itemSizeMedium
                         onClicked: hue.recallScene(model.resourceId)
+                        onPressAndHold: pageStack.push(Qt.resolvedUrl("SceneDialog.qml"), {
+                                                           groupId: page.groupId,
+                                                           groupName: page.groupName,
+                                                           sceneId: model.resourceId,
+                                                           sceneName: model.name
+                                                       })
 
                         Rectangle {
                             anchors.fill: parent

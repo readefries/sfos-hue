@@ -55,8 +55,14 @@ public:
 
     // PUT /clip/v2/resource/<type>/<id>. The caller owns the reply; errorOf() interprets it.
     QNetworkReply *put(const QString &type, const QString &id, const QJsonObject &body);
+    // POST /clip/v2/resource/<type>, creating one; createdId() tells its id.
+    QNetworkReply *post(const QString &type, const QJsonObject &body);
+    // DELETE /clip/v2/resource/<type>/<id>.
+    QNetworkReply *remove(const QString &type, const QString &id);
+    static QString createdId(const QByteArray &body);
     // Empty if the request succeeded, otherwise what went wrong.
     static QString errorOf(QNetworkReply *reply);
+    static QString errorOf(QNetworkReply *reply, const QByteArray &body);
 
 public slots:
     void start();

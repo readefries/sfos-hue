@@ -53,11 +53,13 @@ public:
         return n;
     }
 
-    QList<Request> puts() const
+    QList<Request> puts() const { return withMethod("PUT"); }
+
+    QList<Request> withMethod(const QByteArray &method) const
     {
         QList<Request> list;
         for (const Request &r : requests) {
-            if (r.method == "PUT")
+            if (r.method == method)
                 list.append(r);
         }
         return list;
@@ -139,6 +141,11 @@ private:
         } else if (request.path == "/clip/v2/resource") {
             reply(socket, resourceStatus, QJsonDocument(resources).toJson(QJsonDocument::Compact));
         } else if (request.method == "PUT" && request.path.startsWith("/clip/v2/resource/")) {
+            const QByteArray id = request.path.split('/').last();
+            reply(socket, 200, "{\"data\":[{\"rid\":\"" + id + "\"}],\"errors\":[]}");
+        } else if (request.method == "POST" && request.path == "/clip/v2/resource/scene") {
+            reply(socket, 200, "{\"data\":[{\"rid\":\"scene-created\",\"rtype\":\"scene\"}],\"errors\":[]}");
+        } else if (request.method == "DELETE" && request.path.startsWith("/clip/v2/resource/")) {
             const QByteArray id = request.path.split('/').last();
             reply(socket, 200, "{\"data\":[{\"rid\":\"" + id + "\"}],\"errors\":[]}");
         } else if (request.method == "POST" && request.path == "/api") {

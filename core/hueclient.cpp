@@ -12,8 +12,10 @@
 #include <QDir>
 #include <QJsonObject>
 #include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QTimer>
 
 namespace {
 
@@ -56,6 +58,7 @@ HueClient::HueClient(const QString &settingsPath, QObject *parent)
     , m_pairing(new HuePairing(m_nam, this))
 {
     connect(m_bridge, &HueBridge::stateChanged, this, &HueClient::updateState);
+
     connect(m_bridge, &HueBridge::errorOccurred, this, &HueClient::setLastError);
     connect(m_queue, &HueCommandQueue::commandFailed, this,
             [this](const QString &, const QString &, const QString &error) {
@@ -255,6 +258,94 @@ void HueClient::recallScene(const QString &sceneId)
         return;
     m_queue->enqueue(QStringLiteral("scene"), sceneId,
                      object(QStringLiteral("recall"), object(QStringLiteral("action"), QStringLiteral("active"))));
+}
+
+QJsonArray HueClient::sceneActions(const QString &groupId) const
+{
+    // Each light as it is: off, or on with its brightness and either its colour temperature or
+    // its colour, whichever it's showing.
+    QJsonArray actions;
+    for (const QString &lightId : m_store->lightsOf(groupId)) {
+        const QJsonObject light = m_store->resource(lightId);
+        const bool on = HueJson::at(light, {QStringLiteral("on"), QStringLiteral("on")}).toBool();
+        QJsonObject action = object(QStringLiteral("on"), object(QStringLiteral("on"), on));
+        if (on) {
+            const QJsonValue brightness = HueJson::at(light, {QStringLiteral("dimming"), QStringLiteral("brightness")});
+            if (brightness.isDouble())
+                action.insert(QStringLiteral("dimming"), object(QStringLiteral("brightness"), brightness));
+            const QJsonObject ct = light.value(QStringLiteral("color_temperature")).toObject();
+            const QJsonValue xy = HueJson::at(light, {QStringLiteral("color"), QStringLiteral("xy")});
+            if (ct.value(QStringLiteral("mirek_valid")).toBool() && ct.value(QStringLiteral("mirek")).isDouble())
+                action.insert(QStringLiteral("color_temperature"), object(QStringLiteral("mirek"), ct.value(QStringLiteral("mirek"))));
+            else if (xy.isObject())
+                action.insert(QStringLiteral("color"), object(QStringLiteral("xy"), xy));
+        }
+        QJsonObject target;
+        target.insert(QStringLiteral("rid"), lightId);
+        target.insert(QStringLiteral("rtype"), QStringLiteral("light"));
+        QJsonObject entry;
+        entry.insert(QStringLiteral("target"), target);
+        entry.insert(QStringLiteral("action"), action);
+        actions.append(entry);
+    }
+    return actions;
+}
+
+void HueClient::finishRequest(QNetworkReply *reply, const std::function<void(const QByteArray &)> &done)
+{
+    QTimer::singleShot(10 * 1000, reply, &QNetworkReply::abort);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, done]() {
+        reply->deleteLater();
+        const QByteArray body = reply->readAll();
+        const QString error = HueBridge::errorOf(reply, body);
+        if (!error.isEmpty())
+            setLastError(error);
+        else if (done)
+            done(body);
+    });
+}
+
+void HueClient::createScene(const QString &groupId, const QString &name)
+{
+    const QString groupType = m_store->type(groupId);
+    if (groupType != QLatin1String("room") && groupType != QLatin1String("zone"))
+        return;
+    QJsonObject group;
+    group.insert(QStringLiteral("rid"), groupId);
+    group.insert(QStringLiteral("rtype"), groupType);
+    QJsonObject body;
+    body.insert(QStringLiteral("type"), QStringLiteral("scene"));
+    body.insert(QStringLiteral("metadata"), object(QStringLiteral("name"), name.trimmed().left(32)));
+    body.insert(QStringLiteral("group"), group);
+    body.insert(QStringLiteral("actions"), sceneActions(groupId));
+    finishRequest(m_bridge->post(QStringLiteral("scene"), body), [this](const QByteArray &reply) {
+        // The stream adds the scene itself.
+        emit sceneCreated(HueBridge::createdId(reply));
+    });
+}
+
+void HueClient::renameScene(const QString &sceneId, const QString &name)
+{
+    if (m_store->type(sceneId) == QLatin1String("scene"))
+        command(sceneId, object(QStringLiteral("metadata"), object(QStringLiteral("name"), name.trimmed().left(32))));
+}
+
+void HueClient::storeScene(const QString &sceneId)
+{
+    if (m_store->type(sceneId) != QLatin1String("scene"))
+        return;
+    const QString groupId = HueJson::at(m_store->resource(sceneId), {QStringLiteral("group"), QStringLiteral("rid")}).toString();
+    command(sceneId, object(QStringLiteral("actions"), sceneActions(groupId)));
+}
+
+void HueClient::deleteScene(const QString &sceneId)
+{
+    if (m_store->type(sceneId) != QLatin1String("scene"))
+        return;
+    finishRequest(m_bridge->remove(QStringLiteral("scene"), sceneId), [this, sceneId](const QByteArray &) {
+        // Don't wait for the stream to say so.
+        m_store->remove(sceneId);
+    });
 }
 
 void HueClient::setEnabled(const QString &id, bool enabled)

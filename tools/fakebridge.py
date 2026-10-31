@@ -71,6 +71,13 @@ class Bridge:
                 targets = self.all_lights() if owner["type"] == "bridge_home" else self.lights_of(owner)
                 for light in targets:
                     changes += self.set_light(light, body)
+            elif rtype == "scene" and ("metadata" in body or "actions" in body):
+                change = {"id": rid, "type": "scene"}
+                for key in ("metadata", "actions"):
+                    if key in body:
+                        res[key] = {**res.get(key, {}), **body[key]} if key == "metadata" else body[key]
+                        change[key] = res[key]
+                changes.append(change)
             elif rtype == "scene" and "recall" in body:
                 for action in res.get("actions", []):
                     changes += self.set_light(action["target"]["rid"], action["action"])
@@ -200,7 +207,33 @@ def make_handler(bridge, verbose):
                 bridge.listeners.remove(events)
                 self.close_connection = True
 
+        def do_DELETE(self):
+            parts = self.path.strip("/").split("/")
+            if len(parts) != 5 or parts[:3] != ["clip", "v2", "resource"]:
+                self.send_json(404, {"errors": [{"description": "not found"}]})
+                return
+            if not self.authorized():
+                return
+            rtype, rid = parts[3], parts[4]
+            with bridge.lock:
+                removed = bridge.resources.pop(rid, None)
+            if removed is None:
+                self.send_json(404, {"errors": [{"description": f"resource {rtype}/{rid} not found"}]})
+                return
+            self.send_json(200, {"errors": [], "data": [{"rid": rid, "rtype": rtype}]})
+            threading.Timer(0.3, bridge.publish, [[{"id": rid, "type": rtype}], "delete"]).start()
+
         def do_POST(self):
+            if self.path == "/clip/v2/resource/scene":
+                if not self.authorized():
+                    return
+                scene = self.read_body()
+                scene.update(id=str(uuid.uuid4()), type="scene", status={"active": "inactive"})
+                with bridge.lock:
+                    bridge.resources[scene["id"]] = scene
+                self.send_json(200, {"errors": [], "data": [{"rid": scene["id"], "rtype": "scene"}]})
+                threading.Timer(0.3, bridge.publish, [[scene], "add"]).start()
+                return
             if self.path != "/api":
                 self.send_json(404, [])
                 return

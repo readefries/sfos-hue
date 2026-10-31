@@ -45,6 +45,7 @@ DISTFILES += \
     qml/pages/PairPage.qml \
     qml/pages/RoomPage.qml \
     qml/pages/RoomsPage.qml \
+    qml/pages/SceneDialog.qml \
     qml/pages/SensorsPage.qml \
     qml/pages/SettingsPage.qml \
     qml/pages/SetupPage.qml

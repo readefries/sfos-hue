@@ -147,22 +147,32 @@
 <context>
     <name>RoomPage</name>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="46"/>
+        <location filename="../qml/pages/RoomPage.qml" line="31"/>
+        <source>New scene from current lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPage.qml" line="57"/>
         <source>On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="53"/>
+        <location filename="../qml/pages/RoomPage.qml" line="64"/>
         <source>Brightness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="66"/>
+        <location filename="../qml/pages/RoomPage.qml" line="77"/>
         <source>Scenes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="116"/>
+        <location filename="../qml/pages/RoomPage.qml" line="88"/>
+        <source>Tap to switch to a scene; press and hold to change it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPage.qml" line="143"/>
         <source>Lights</source>
         <translation type="unfinished"></translation>
     </message>
@@ -217,6 +227,50 @@
     <message>
         <location filename="../qml/pages/RoomsPage.qml" line="66"/>
         <source>Pull down for settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SceneDialog</name>
+    <message>
+        <location filename="../qml/pages/SceneDialog.qml" line="40"/>
+        <source>Delete scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SceneDialog.qml" line="41"/>
+        <source>Deleting scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SceneDialog.qml" line="53"/>
+        <source>New scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SceneDialog.qml" line="54"/>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SceneDialog.qml" line="60"/>
+        <location filename="../qml/pages/SceneDialog.qml" line="61"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SceneDialog.qml" line="73"/>
+        <source>Use the lights as they are now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SceneDialog.qml" line="74"/>
+        <source>Replaces what the scene does with the current state of the lights in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SceneDialog.qml" line="85"/>
+        <source>The scene remembers the lights in %1 as they are now: which are on, how bright, and their colour.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

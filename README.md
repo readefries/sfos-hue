@@ -81,9 +81,9 @@ before it succeeds. `--cert`/`--key` serve HTTPS, to try the certificate pinning
 
 - **Done since the first version:** lamps with several spots as one light; sensors and switches
   (motion, temperature, light level, buttons, batteries; motion sensors can be switched off); icons
-  by lamp and room type; Dutch.
-- **Next:** creating and editing scenes.
-- **Then:** renaming lights and rooms; motion sensor sensitivity; more than one bridge; storing the
+  by lamp and room type; Dutch; creating, renaming, updating and deleting scenes.
+- **Next:** renaming lights and rooms.
+- **Then:** motion sensor sensitivity; more than one bridge; storing the
   app key in Sailfish Secrets.
 - **Maybe:** automations (`behavior_instance`), remote access through Philips' cloud API (needs a
   registered app), a background daemon for notifications from sensors.

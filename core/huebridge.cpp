@@ -262,9 +262,36 @@ QNetworkReply *HueBridge::put(const QString &type, const QString &id, const QJso
     return reply;
 }
 
+QNetworkReply *HueBridge::post(const QString &type, const QJsonObject &body)
+{
+    QNetworkRequest req = request(QStringLiteral("/clip/v2/resource/%1").arg(type));
+    req.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+    QNetworkReply *reply = m_nam->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
+    HueTls::attach(reply, m_config.certSha256);
+    return reply;
+}
+
+QNetworkReply *HueBridge::remove(const QString &type, const QString &id)
+{
+    QNetworkReply *reply = m_nam->deleteResource(request(QStringLiteral("/clip/v2/resource/%1/%2").arg(type, id)));
+    HueTls::attach(reply, m_config.certSha256);
+    return reply;
+}
+
+QString HueBridge::createdId(const QByteArray &body)
+{
+    const QJsonArray data = QJsonDocument::fromJson(body).object().value(QStringLiteral("data")).toArray();
+    return data.at(0).toObject().value(QStringLiteral("rid")).toString();
+}
+
 QString HueBridge::errorOf(QNetworkReply *reply)
 {
-    const QJsonObject body = QJsonDocument::fromJson(reply->readAll()).object();
+    return errorOf(reply, reply->readAll());
+}
+
+QString HueBridge::errorOf(QNetworkReply *reply, const QByteArray &data)
+{
+    const QJsonObject body = QJsonDocument::fromJson(data).object();
     const QJsonArray errors = body.value(QStringLiteral("errors")).toArray();
     if (!errors.isEmpty())
         return errors.at(0).toObject().value(QStringLiteral("description")).toString();

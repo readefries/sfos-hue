@@ -5,7 +5,10 @@
 #include "huebridge.h"
 
 #include <QColor>
+#include <QJsonArray>
 #include <QJsonObject>
+
+#include <functional>
 #include <QObject>
 
 class HueCommandQueue;
@@ -13,6 +16,7 @@ class HueDiscovery;
 class HuePairing;
 class HueResourceStore;
 class QNetworkAccessManager;
+class QNetworkReply;
 class QSettings;
 
 // Everything the UI needs, in one object: the paired bridge (remembered in settings), its live
@@ -81,6 +85,13 @@ public:
     Q_INVOKABLE void setColor(const QString &id, const QColor &color);
     Q_INVOKABLE void setMirek(const QString &id, int mirek);
     Q_INVOKABLE void recallScene(const QString &sceneId);
+    // A new scene in a room or zone with how its lights are now; sceneCreated() follows.
+    Q_INVOKABLE void createScene(const QString &groupId, const QString &name);
+    Q_INVOKABLE void renameScene(const QString &sceneId, const QString &name);
+    // Make the scene what its room's lights are now.
+    Q_INVOKABLE void storeScene(const QString &sceneId);
+    Q_INVOKABLE void deleteScene(const QString &sceneId);
+
     // Switch a sensor service (e.g. motion) on or off.
     Q_INVOKABLE void setEnabled(const QString &id, bool enabled);
     Q_INVOKABLE void allOff();
@@ -97,8 +108,11 @@ signals:
     void lastErrorChanged();
     void pairingChanged();
     void paired();
+    void sceneCreated(const QString &sceneId);
 
 private:
+    QJsonArray sceneActions(const QString &groupId) const;
+    void finishRequest(QNetworkReply *reply, const std::function<void(const QByteArray &body)> &done = nullptr);
     void command(const QString &target, const QJsonObject &body, const QJsonObject &optimistic = QJsonObject());
     void applyConfig();
     void updateState();

@@ -95,6 +95,17 @@ NL = {
     "No bridges found": "Geen bridges gevonden",
     "Or enter its address": "Of vul het adres in",
     "IP address": "IP-adres",
+    "New scene from current lights": "Nieuwe scène van de lampen nu",
+    "Tap to switch to a scene; press and hold to change it": "Tik om een scène te kiezen; houd vast om hem aan te passen",
+    "Delete scene": "Scène verwijderen",
+    "Deleting scene": "Scène verwijderen",
+    "New scene": "Nieuwe scène",
+    "Save": "Opslaan",
+    "Use the lights as they are now": "De lampen nemen zoals ze nu zijn",
+    "Replaces what the scene does with the current state of the lights in %1":
+        "Vervangt wat de scène doet door hoe de lampen in %1 nu staan",
+    "The scene remembers the lights in %1 as they are now: which are on, how bright, and their colour.":
+        "De scène onthoudt hoe de lampen in %1 nu staan: welke aan zijn, hoe fel en in welke kleur.",
 }
 
 
