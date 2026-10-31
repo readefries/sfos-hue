@@ -151,7 +151,8 @@ Page {
                     rightMargin: Theme.horizontalPageMargin - Theme.paddingLarge
                     verticalCenter: parent.verticalCenter
                 }
-                visible: model.motionId !== ""
+                // Only the bridge's sensors can be switched off; zigbee2mqtt's ("z2m:...") can't.
+                visible: model.motionId !== "" && model.motionId.indexOf(":") < 0
                 checked: model.motionEnabled
                 automaticCheck: false
                 onClicked: hue.setEnabled(model.motionId, !model.motionEnabled)

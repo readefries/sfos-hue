@@ -50,6 +50,7 @@ QHash<int, QByteArray> HueRoomModel::roleNames() const
         {OnRole, "on"},
         {BrightnessRole, "brightness"},
         {LightCountRole, "lightCount"},
+        {DimmableRole, "dimmable"},
     };
 }
 
@@ -70,9 +71,30 @@ QStringList HueRoomModel::collectIds() const
             + sortedByName(m_store->idsOfType(QStringLiteral("zone")));
 }
 
+namespace {
+
+// Whether the room's state is its grouped_light's, or has to come from its lights: when it has
+// no grouped_light (Lampje's own rooms) or lights the bridge doesn't know (Zigbee ones).
+bool stateFromLights(const HueResourceStore *store, const QString &groupId)
+{
+    if (store->groupedLightOf(groupId).isEmpty())
+        return true;
+    for (const QString &light : store->lightsOf(groupId)) {
+        if (!HueResourceStore::sourceOf(light).isEmpty())
+            return true;
+    }
+    return false;
+}
+
+} // namespace
+
 QStringList HueRoomModel::dependenciesOf(const QString &id) const
 {
-    return QStringList() << id << m_store->groupedLightOf(id);
+    QStringList dependencies;
+    dependencies << id << m_store->groupedLightOf(id);
+    if (stateFromLights(m_store, id))
+        dependencies += m_store->lightsOf(id);
+    return dependencies;
 }
 
 QVariant HueRoomModel::dataFor(const QString &id, int role) const
@@ -86,9 +108,42 @@ QVariant HueRoomModel::dataFor(const QString &id, int role) const
     case NameRole: return at(group, "metadata", "name").toString();
     case ArchetypeRole: return at(group, "metadata", "archetype").toString();
     case GroupedLightIdRole: return groupedLightId;
-    case OnRole: return at(groupedLight, "on", "on").toBool();
-    case BrightnessRole: return at(groupedLight, "dimming", "brightness").toDouble();
+    case OnRole:
+    case BrightnessRole:
+        if (!stateFromLights(m_store, id)) {
+            return role == OnRole ? QVariant(at(groupedLight, "on", "on").toBool())
+                                  : QVariant(at(groupedLight, "dimming", "brightness").toDouble());
+        } else {
+            // Like the bridge: on if any light is, brightness of the lights that are on. The
+            // bridge's lights count as its grouped_light says, if there is one.
+            double sum = 0;
+            int on = 0;
+            int bridgeLights = 0;
+            for (const QString &lightId : m_store->lightsOf(id)) {
+                if (!groupedLightId.isEmpty() && HueResourceStore::sourceOf(lightId).isEmpty()) {
+                    ++bridgeLights;
+                    continue;
+                }
+                const QJsonObject light = m_store->resource(lightId);
+                if (!at(light, "on", "on").toBool())
+                    continue;
+                const QJsonValue brightness = at(light, "dimming", "brightness");
+                sum += brightness.isDouble() ? brightness.toDouble() : 100.0;
+                ++on;
+            }
+            if (bridgeLights > 0 && at(groupedLight, "on", "on").toBool()) {
+                sum += bridgeLights * at(groupedLight, "dimming", "brightness").toDouble();
+                on += bridgeLights;
+            }
+            return role == OnRole ? QVariant(on > 0) : QVariant(on > 0 ? sum / on : 0.0);
+        }
     case LightCountRole: return m_store->lightsOf(id).size();
+    case DimmableRole:
+        for (const QString &lightId : m_store->lightsOf(id)) {
+            if (m_store->resource(lightId).value(QStringLiteral("dimming")).isObject())
+                return true;
+        }
+        return false;
     }
     return QVariant();
 }
@@ -138,6 +193,15 @@ void HueLightModel::setLightId(const QString &lightId)
     refresh();
 }
 
+void HueLightModel::setWithoutRoom(bool withoutRoom)
+{
+    if (m_withoutRoom == withoutRoom)
+        return;
+    m_withoutRoom = withoutRoom;
+    emit withoutRoomChanged();
+    refresh();
+}
+
 void HueLightModel::setGroupFixtures(bool groupFixtures)
 {
     if (m_groupFixtures == groupFixtures)
@@ -168,8 +232,19 @@ QStringList HueLightModel::collectIds() const
             return QStringList();
         return m_groupFixtures ? QStringList(m_lightId) : sortedByName(lights);
     }
-    const QStringList lights = m_groupId.isEmpty() ? m_store->idsOfType(QStringLiteral("light"))
-                                                   : m_store->lightsOf(m_groupId);
+    QStringList lights = m_groupId.isEmpty() ? m_store->idsOfType(QStringLiteral("light"))
+                                             : m_store->lightsOf(m_groupId);
+    if (m_withoutRoom) {
+        QStringList placed;
+        for (const QString &room : m_store->idsOfType(QStringLiteral("room")))
+            placed += m_store->lightsOf(room);
+        QStringList unplaced;
+        for (const QString &light : lights) {
+            if (!placed.contains(light))
+                unplaced.append(light);
+        }
+        lights = unplaced;
+    }
     return sortedByName(m_groupFixtures ? m_store->withFixtures(lights, m_groupId) : lights);
 }
 

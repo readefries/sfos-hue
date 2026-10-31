@@ -20,9 +20,13 @@ class HueResourceStore : public QObject
 public:
     explicit HueResourceStore(QObject *parent = nullptr);
 
-    // Replace everything, e.g. with the `data` array of GET /clip/v2/resource.
-    void reset(const QJsonArray &resources);
-    void clear();
+    // Resources come from the bridge (UUIDs as ids) or elsewhere, with ids "<source>:..."; e.g.
+    // "z2m:..." for zigbee2mqtt devices made to look like the bridge's.
+    static QString sourceOf(const QString &id);
+    // Replace everything from one source, e.g. the bridge's with the `data` array of
+    // GET /clip/v2/resource. What other sources gave stays.
+    void reset(const QJsonArray &resources, const QString &source = QString());
+    void clear(const QString &source = QString());
     // The `data` of one event stream message: [{type: update|add|delete|error, data: [...]}, ...]
     void applyEvents(const QJsonArray &events);
     // Merge a partial resource ({id, type, ...changes}) into the one with that id.
@@ -41,8 +45,15 @@ public:
     QString groupedLightOf(const QString &groupId) const;
     // The room or zone a grouped_light belongs to.
     QString groupOfGroupedLight(const QString &groupedLightId) const;
-    // Lights in a room (through its devices) or zone (listed directly, or through devices).
+    // Lights in a room (through its devices) or zone (listed directly, or through devices), and
+    // the extra lights put there (see setExtraLights()).
     QStringList lightsOf(const QString &groupId) const;
+    // Lights the bridge doesn't know about (Zigbee ones), put in its rooms and zones, or in
+    // Lampje's own ones, by group id. They survive the bridge's resets.
+    void setExtraLights(const QHash<QString, QStringList> &lightsByGroup);
+    QStringList extraLightsOf(const QString &groupId) const { return m_extraLights.value(groupId); }
+    // Rooms (not zones) a light is in.
+    QStringList roomsOfLight(const QString &lightId) const;
     // zigbee_connectivity service of the device that owns a light; empty if none (e.g. a lamp
     // connected over something else, or the bridge itself).
     QString connectivityOfLight(const QString &lightId) const;
@@ -78,6 +89,7 @@ signals:
 
 private:
     QHash<QString, QJsonObject> m_resources;
+    QHash<QString, QStringList> m_extraLights;
 };
 
 #endif // HUERESOURCESTORE_H

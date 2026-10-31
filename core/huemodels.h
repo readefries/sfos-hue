@@ -20,7 +20,8 @@ public:
         GroupedLightIdRole,
         OnRole,
         BrightnessRole,     // 0-100
-        LightCountRole
+        LightCountRole,
+        DimmableRole        // whether any of its lights dims
     };
 
     explicit HueRoomModel(QObject *parent = nullptr);
@@ -50,6 +51,8 @@ class HueLightModel : public HueListModel
     Q_PROPERTY(QString groupId READ groupId WRITE setGroupId NOTIFY groupIdChanged)
     Q_PROPERTY(QString lightId READ lightId WRITE setLightId NOTIFY lightIdChanged)
     Q_PROPERTY(bool groupFixtures READ groupFixtures WRITE setGroupFixtures NOTIFY groupFixturesChanged)
+    // Only lights in no room, e.g. new Zigbee ones.
+    Q_PROPERTY(bool withoutRoom READ withoutRoom WRITE setWithoutRoom NOTIFY withoutRoomChanged)
 public:
     enum Roles {
         IdRole = Qt::UserRole + 1,
@@ -77,6 +80,8 @@ public:
     void setLightId(const QString &lightId);
     bool groupFixtures() const { return m_groupFixtures; }
     void setGroupFixtures(bool groupFixtures);
+    bool withoutRoom() const { return m_withoutRoom; }
+    void setWithoutRoom(bool withoutRoom);
 
     // Shared with HueClient: the colour a light shows right now.
     static QColor displayColor(const QJsonObject &light);
@@ -85,6 +90,7 @@ signals:
     void groupIdChanged();
     void lightIdChanged();
     void groupFixturesChanged();
+    void withoutRoomChanged();
 
 protected:
     QStringList collectIds() const override;
@@ -97,6 +103,7 @@ private:
     QString m_groupId;
     QString m_lightId;
     bool m_groupFixtures = true;
+    bool m_withoutRoom = false;
 };
 
 // Scenes of one room or zone.

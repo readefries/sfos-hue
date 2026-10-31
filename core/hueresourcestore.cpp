@@ -15,22 +15,32 @@ HueResourceStore::HueResourceStore(QObject *parent)
 {
 }
 
-void HueResourceStore::reset(const QJsonArray &resources)
+QString HueResourceStore::sourceOf(const QString &id)
 {
-    m_resources.clear();
+    const int colon = id.indexOf(QLatin1Char(':'));
+    return colon < 0 ? QString() : id.left(colon);
+}
+
+void HueResourceStore::reset(const QJsonArray &resources, const QString &source)
+{
+    for (auto it = m_resources.begin(); it != m_resources.end();) {
+        if (sourceOf(it.key()) == source)
+            it = m_resources.erase(it);
+        else
+            ++it;
+    }
     for (const QJsonValue &value : resources) {
         const QJsonObject obj = value.toObject();
         const QString id = obj.value(kId).toString();
-        if (!id.isEmpty())
+        if (!id.isEmpty() && sourceOf(id) == source)
             m_resources.insert(id, obj);
     }
     emit resourcesReset();
 }
 
-void HueResourceStore::clear()
+void HueResourceStore::clear(const QString &source)
 {
-    m_resources.clear();
-    emit resourcesReset();
+    reset(QJsonArray(), source);
 }
 
 void HueResourceStore::applyEvents(const QJsonArray &events)
@@ -148,6 +158,10 @@ QStringList HueResourceStore::lightsOf(const QString &groupId) const
                 lights.append(lightId);
         }
     }
+    for (const QString &lightId : m_extraLights.value(groupId)) {
+        if (!lights.contains(lightId))
+            lights.append(lightId);
+    }
     // Only what's actually loaded, so callers never see dangling ids.
     QStringList known;
     for (const QString &id : lights) {
@@ -155,6 +169,24 @@ QStringList HueResourceStore::lightsOf(const QString &groupId) const
             known.append(id);
     }
     return known;
+}
+
+void HueResourceStore::setExtraLights(const QHash<QString, QStringList> &lightsByGroup)
+{
+    if (m_extraLights == lightsByGroup)
+        return;
+    m_extraLights = lightsByGroup;
+    emit resourcesReset();
+}
+
+QStringList HueResourceStore::roomsOfLight(const QString &lightId) const
+{
+    QStringList rooms;
+    for (const QString &room : idsOfType(QStringLiteral("room"))) {
+        if (lightsOf(room).contains(lightId))
+            rooms.append(room);
+    }
+    return rooms;
 }
 
 QString HueResourceStore::connectivityOfLight(const QString &lightId) const

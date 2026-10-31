@@ -28,11 +28,22 @@ Page {
         anchors.fill: parent
         contentHeight: column.height + Theme.paddingLarge
 
-        // A lamp with several spots is named after them; rename the spots instead.
+        // A lamp with several spots ("fixture:...") is named after them; rename the spots instead.
+        // Zigbee lights ("z2m:...") are named in zigbee2mqtt, but their room is picked here; the
+        // bridge's lights are in a room through the Hue app.
         PullDownMenu {
             visible: page.lightId.indexOf("fixture:") !== 0
             MenuItem {
+                text: qsTr("Room")
+                visible: !hue.isFromBridge(page.lightId)
+                onClicked: pageStack.push(Qt.resolvedUrl("RoomPickerPage.qml"), {
+                                              lightId: page.lightId,
+                                              lightName: page.lightName
+                                          })
+            }
+            MenuItem {
                 text: qsTr("Rename")
+                visible: hue.isFromBridge(page.lightId)
                 onClicked: {
                     var dialog = pageStack.push(Qt.resolvedUrl("EditDialog.qml"), {
                                                     title: qsTr("Rename light"),

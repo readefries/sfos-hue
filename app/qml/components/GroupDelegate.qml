@@ -59,21 +59,21 @@ ListItem {
                     rightMargin: Theme.horizontalPageMargin - Theme.paddingLarge
                     verticalCenter: parent.verticalCenter
                 }
-                enabled: model.groupedLightId !== ""
+                enabled: model.lightCount > 0
                 checked: model.on
                 automaticCheck: false
-                onClicked: hue.setOn(model.groupedLightId, !model.on)
+                onClicked: hue.setOn(model.resourceId, !model.on)
             }
         }
 
         LevelSlider {
-            visible: model.groupedLightId !== ""
+            visible: model.dimmable
             opacity: model.on ? 1.0 : Theme.opacityHigh
             minimumValue: 1
             maximumValue: 100
             stepSize: 1
             level: model.brightness
-            onChangeRequested: hue.setBrightness(model.groupedLightId, value)
+            onChangeRequested: hue.setBrightness(model.resourceId, value)
         }
     }
 }

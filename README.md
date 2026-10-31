@@ -6,14 +6,19 @@ Talks directly to the Hue bridge on the local network over the CLIP v2 API: room
 single lights (brightness, colour temperature, colour), scenes, and live updates when lights are
 changed elsewhere (wall switches, the official app, automations).
 
+Zigbee lights and sensors paired with [zigbee2mqtt](https://www.zigbee2mqtt.io/) join in through
+an MQTT broker (Settings, Zigbee): they can go into the bridge's rooms and zones, or into rooms of
+Lampje's own, and switch along with the Hue lights there.
+
 ## Layout
 
 | Path    | What |
 |---------|------|
 | `core/` | Static library, Qt Core/Gui/Network only, so it's testable on its own. |
 | `app/`  | `harbour-lampje`, the Silica UI. Sailjail permission: `Internet`. |
-| `tests/`| Qt Test suite for `core`, against an in-process fake bridge (`tests/common/fakehuebridge.h`). |
+| `tests/`| Qt Test suite for `core`, against an in-process fake bridge (`tests/common/fakehuebridge.h`) and MQTT broker (`fakemqttbroker.h`). |
 | `tools/fakebridge.py` | A pretend bridge for the emulator or the phone; see below. |
+| `tools/z2mdump.py` | Saves zigbee2mqtt's device list from a broker (`tools/z2mdump.py <host> [user]`), e.g. to see how a device exposes itself. |
 
 What's in `core/`:
 
@@ -44,6 +49,15 @@ What's in `core/`:
 - `HueTls`: the bridge's certificate is signed by Signify's own CA and named after the bridge id,
   so the usual checks always fail. It is pinned (SHA-256) when pairing and must match afterwards.
 - `HueColor`: sRGB ↔ CIE xy, clamping to each lamp's gamut, mirek → display colour.
+- `MqttClient`: the bit of MQTT 3.1.1 needed (Qt 5.6 has no QtMqtt): user name and password,
+  subscribe, QoS 0, keep-alive, reconnecting with backoff.
+- `Zigbee2Mqtt`: zigbee2mqtt's devices in the store as if the bridge had them, with ids
+  `z2m:<ieee address>...`: each light or switch channel a `light`, sensors as `motion`,
+  `light_level`, `temperature` and `device_power`, availability as `zigbee_connectivity`. Commands
+  go to `<base>/<name>/set`, merged per 150 ms so a dragged slider doesn't flood the network.
+- `LocalGroups`: rooms and zones of Lampje's own (`local:...`), and which rooms and zones Zigbee
+  lights are in, kept in settings. The store adds those lights to the groups (`lightsOf()`), so a
+  room can hold both: the bridge's lights switch through its grouped_light, the others one by one.
 
 Sailfish OS ships Qt 5.6: don't use newer Qt APIs.
 
@@ -105,8 +119,10 @@ before it succeeds. `--cert`/`--key` serve HTTPS, to try the certificate pinning
 - **Done since the first version:** lamps with several spots as one light; sensors and switches
   (motion, temperature, light level, buttons, batteries; motion sensors can be switched off); icons
   by lamp and room type; Dutch; creating, renaming, updating and deleting scenes; creating and editing zones;
-  two configurable cover buttons; renaming lights, and renaming rooms or changing their kind.
-- **Next:** moving lights between rooms.
+  two configurable cover buttons; renaming lights, and renaming rooms or changing their kind;
+  zigbee2mqtt lights and sensors, in rooms with the Hue lights or of their own.
+- **Next:** a fake MQTT broker in `tools/` for the emulator; MQTT over TLS; moving the bridge's
+  lights between rooms.
 - **Then:** motion sensor sensitivity; more than one bridge; storing the
   app key in Sailfish Secrets.
 - **Maybe:** automations (`behavior_instance`), remote access through Philips' cloud API (needs a

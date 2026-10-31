@@ -51,8 +51,10 @@ DISTFILES += \
     qml/pages/CoverActionPage.qml \
     qml/pages/EditDialog.qml \
     qml/pages/LightPage.qml \
+    qml/pages/MqttDialog.qml \
     qml/pages/PairPage.qml \
     qml/pages/RoomPage.qml \
+    qml/pages/RoomPickerPage.qml \
     qml/pages/RoomsPage.qml \
     qml/pages/SceneDialog.qml \
     qml/pages/SensorsPage.qml \

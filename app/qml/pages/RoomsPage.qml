@@ -26,6 +26,19 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("SensorsPage.qml"))
             }
             MenuItem {
+                text: qsTr("New room")
+                onClicked: {
+                    var dialog = pageStack.push(Qt.resolvedUrl("EditDialog.qml"), {
+                                                    title: qsTr("New room"),
+                                                    archetype: "other",
+                                                    withKind: true
+                                                })
+                    dialog.accepted.connect(function() {
+                        hue.createRoom(dialog.newName, dialog.newArchetype)
+                    })
+                }
+            }
+            MenuItem {
                 text: qsTr("New zone")
                 enabled: hue.state === HueClient.Connected
                 onClicked: pageStack.push(Qt.resolvedUrl("ZoneDialog.qml"))
@@ -58,6 +71,26 @@ Page {
         }
 
         delegate: GroupDelegate {}
+
+        // Zigbee lights nobody put in a room yet; their page has a room picker.
+        footer: Column {
+            width: list.width
+
+            SectionHeader {
+                visible: unplaced.count > 0
+                text: qsTr("Not in a room")
+            }
+            Repeater {
+                model: LightModel {
+                    id: unplaced
+                    store: hue.store
+                    withoutRoom: true
+                }
+                delegate: LightDelegate {
+                    width: list.width
+                }
+            }
+        }
 
         ViewPlaceholder {
             enabled: rooms.count === 0 && hue.state === HueClient.Connected

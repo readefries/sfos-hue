@@ -6,7 +6,10 @@
 #include "huediscovery.h"
 #include "huejson.h"
 #include "huepairing.h"
+#include "localgroups.h"
 #include "hueresourcestore.h"
+#include "mqttclient.h"
+#include "zigbee2mqtt.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -24,6 +27,11 @@ const QString kHost = QStringLiteral("bridge/host");
 const QString kName = QStringLiteral("bridge/name");
 const QString kAppKey = QStringLiteral("bridge/appKey");
 const QString kCert = QStringLiteral("bridge/certSha256");
+const QString kMqttHost = QStringLiteral("mqtt/host");
+const QString kMqttPort = QStringLiteral("mqtt/port");
+const QString kMqttUser = QStringLiteral("mqtt/user");
+const QString kMqttPassword = QStringLiteral("mqtt/password");
+const QString kMqttBase = QStringLiteral("mqtt/baseTopic");
 
 // Reconnect when coming back after this long; the stream might have died unnoticed.
 const qint64 kStaleAfterMsecs = 60 * 1000;
@@ -56,7 +64,19 @@ HueClient::HueClient(const QString &settingsPath, QObject *parent)
     , m_queue(new HueCommandQueue(m_bridge, this))
     , m_discovery(new HueDiscovery(m_nam, this))
     , m_pairing(new HuePairing(m_nam, this))
+    , m_mqtt(new MqttClient(this))
+    , m_zigbee(new Zigbee2Mqtt(m_mqtt, m_store, this))
+    , m_local(new LocalGroups(m_settings, m_store, this))
 {
+    connect(m_mqtt, &MqttClient::stateChanged, this, [this](MqttClient::State state) {
+        if (state == MqttClient::Connected)
+            m_mqttError.clear();
+        emit mqttStateChanged();
+    });
+    connect(m_mqtt, &MqttClient::errorOccurred, this, [this](const QString &error) {
+        m_mqttError = error;
+        emit mqttStateChanged();
+    });
     connect(m_bridge, &HueBridge::stateChanged, this, &HueClient::updateState);
     // Cover actions show names and icons of rooms, zones and scenes, which only the store knows.
     connect(m_store, &HueResourceStore::resourcesReset, this, &HueClient::coverActionsChanged);
@@ -98,12 +118,15 @@ HueClient::HueClient(const QString &settingsPath, QObject *parent)
         emit paired();
     });
 
+    m_local->apply();
     applyConfig();
+    applyMqttConfig();
 }
 
 HueClient::~HueClient()
 {
     m_bridge->stop();
+    m_mqtt->stop();
 }
 
 bool HueClient::isConfigured() const
@@ -125,7 +148,7 @@ void HueClient::applyConfig()
 {
     m_bridge->stop();
     m_queue->clear();
-    m_store->clear();
+    m_store->clear(); // the bridge's; Zigbee devices stay
     if (isConfigured()) {
         HueBridgeConfig config;
         config.baseUrl = HueDiscovery::baseUrlFor(bridgeHost());
@@ -200,8 +223,11 @@ void HueClient::setApplicationActive(bool active)
         m_inactiveSince = now;
         return;
     }
-    if (m_inactiveSince > 0 && now - m_inactiveSince > kStaleAfterMsecs && isConfigured())
-        m_bridge->reconnectNow();
+    if (m_inactiveSince > 0 && now - m_inactiveSince > kStaleAfterMsecs) {
+        if (isConfigured())
+            m_bridge->reconnectNow();
+        m_mqtt->reconnectNow();
+    }
     m_inactiveSince = 0;
 }
 
@@ -216,6 +242,14 @@ void HueClient::command(const QString &target, const QJsonObject &body, const QJ
     const QString type = m_store->type(id);
     if (type.isEmpty())
         return;
+    if (HueResourceStore::sourceOf(id) == Zigbee2Mqtt::Source) {
+        // Only light commands; it updates the store itself, with only what the light can do.
+        if (type == QLatin1String("light"))
+            m_zigbee->command(id, body);
+        return;
+    }
+    if (!HueResourceStore::sourceOf(id).isEmpty())
+        return;
     QJsonObject local = HueJson::merged(body, optimistic);
     local.insert(QStringLiteral("id"), id);
     local.insert(QStringLiteral("type"), type);
@@ -223,9 +257,31 @@ void HueClient::command(const QString &target, const QJsonObject &body, const QJ
     m_queue->enqueue(type, id, body);
 }
 
+void HueClient::lightCommand(const QString &target, const QJsonObject &body, const QJsonObject &optimistic)
+{
+    const QString type = m_store->type(target);
+    if (type == QLatin1String("room") || type == QLatin1String("zone")) {
+        // The bridge's lights through its grouped_light if it has one; the rest one by one.
+        const QString groupedLight = m_store->groupedLightOf(target);
+        if (!groupedLight.isEmpty())
+            command(groupedLight, body, optimistic);
+        // Dimming doesn't switch on lights that only switch (as the slider of a room with a
+        // dimmable lamp and an on/off switch would otherwise do).
+        const bool dimming = body.contains(QStringLiteral("dimming"));
+        for (const QString &light : m_store->lightsOf(target)) {
+            if (dimming && !m_store->resource(light).value(QStringLiteral("dimming")).isObject())
+                continue;
+            if (groupedLight.isEmpty() || !isFromBridge(light))
+                command(light, body, optimistic);
+        }
+        return;
+    }
+    command(target, body, optimistic);
+}
+
 void HueClient::setOn(const QString &id, bool on)
 {
-    command(id, object(QStringLiteral("on"), object(QStringLiteral("on"), on)));
+    lightCommand(id, object(QStringLiteral("on"), object(QStringLiteral("on"), on)));
 }
 
 void HueClient::setBrightness(const QString &id, double brightness)
@@ -234,7 +290,7 @@ void HueClient::setBrightness(const QString &id, double brightness)
                               object(QStringLiteral("brightness"), qBound(1.0, brightness, 100.0)));
     // Dimming a light that's off leaves it off; nobody means that.
     body.insert(QStringLiteral("on"), object(QStringLiteral("on"), true));
-    command(id, body);
+    lightCommand(id, body);
 }
 
 void HueClient::setColor(const QString &id, const QColor &color)
@@ -256,14 +312,14 @@ void HueClient::setColor(const QString &id, const QColor &color)
     QJsonObject body = object(QStringLiteral("color"), object(QStringLiteral("xy"), point));
     body.insert(QStringLiteral("on"), object(QStringLiteral("on"), true));
     // The lamp leaves colour temperature mode; the stream says so too, but later.
-    command(id, body, object(QStringLiteral("color_temperature"), object(QStringLiteral("mirek_valid"), false)));
+    lightCommand(id, body, object(QStringLiteral("color_temperature"), object(QStringLiteral("mirek_valid"), false)));
 }
 
 void HueClient::setMirek(const QString &id, int mirek)
 {
     QJsonObject body = object(QStringLiteral("color_temperature"), object(QStringLiteral("mirek"), mirek));
     body.insert(QStringLiteral("on"), object(QStringLiteral("on"), true));
-    command(id, body, object(QStringLiteral("color_temperature"), object(QStringLiteral("mirek_valid"), true)));
+    lightCommand(id, body, object(QStringLiteral("color_temperature"), object(QStringLiteral("mirek_valid"), true)));
 }
 
 void HueClient::recallScene(const QString &sceneId)
@@ -280,6 +336,8 @@ QJsonArray HueClient::sceneActions(const QString &groupId) const
     // its colour, whichever it's showing.
     QJsonArray actions;
     for (const QString &lightId : m_store->lightsOf(groupId)) {
+        if (!isFromBridge(lightId))
+            continue; // scenes are the bridge's
         const QJsonObject light = m_store->resource(lightId);
         const bool on = HueJson::at(light, {QStringLiteral("on"), QStringLiteral("on")}).toBool();
         QJsonObject action = object(QStringLiteral("on"), object(QStringLiteral("on"), on));
@@ -368,8 +426,11 @@ QJsonObject HueClient::zoneBody(const QString &name, const QString &archetype, c
     QStringList seen;
     for (const QString &id : lightIds) {
         for (const QString &light : m_store->resolveLights(id)) {
-            if (seen.contains(light) || m_store->type(light) != QLatin1String("light"))
+            // The bridge only knows its own lights.
+            if (seen.contains(light) || m_store->type(light) != QLatin1String("light")
+                    || !HueResourceStore::sourceOf(light).isEmpty()) {
                 continue;
+            }
             seen.append(light);
             QJsonObject child;
             child.insert(QStringLiteral("rid"), light);
@@ -386,14 +447,40 @@ QJsonObject HueClient::zoneBody(const QString &name, const QString &archetype, c
     return body;
 }
 
+QStringList HueClient::otherLights() const
+{
+    QStringList lights;
+    for (const QString &id : m_store->idsOfType(QStringLiteral("light"))) {
+        if (!isFromBridge(id))
+            lights.append(id);
+    }
+    return lights;
+}
+
 void HueClient::createZone(const QString &name, const QString &archetype, const QStringList &lightIds)
 {
+    QStringList others;
+    for (const QString &id : lightIds) {
+        for (const QString &light : m_store->resolveLights(id)) {
+            if (!isFromBridge(light) && !others.contains(light))
+                others.append(light);
+        }
+    }
     QJsonObject body = zoneBody(name, archetype, lightIds);
-    if (body.value(QStringLiteral("children")).toArray().isEmpty())
+    if (body.value(QStringLiteral("children")).toArray().isEmpty()) {
+        if (others.isEmpty() || name.trimmed().isEmpty())
+            return;
+        const QString zone = m_local->create(QStringLiteral("zone"), name, archetype);
+        m_local->setMembers(zone, others, others);
         return;
+    }
     body.insert(QStringLiteral("type"), QStringLiteral("zone"));
     // The stream adds the zone, and its grouped_light.
-    finishRequest(m_bridge->post(QStringLiteral("zone"), body));
+    finishRequest(m_bridge->post(QStringLiteral("zone"), body), [this, others](const QByteArray &reply) {
+        const QString zone = HueBridge::createdId(reply);
+        if (!zone.isEmpty() && !others.isEmpty())
+            m_local->setMembers(zone, others, others);
+    });
 }
 
 void HueClient::updateZone(const QString &zoneId, const QString &name, const QString &archetype,
@@ -401,6 +488,19 @@ void HueClient::updateZone(const QString &zoneId, const QString &name, const QSt
 {
     if (m_store->type(zoneId) != QLatin1String("zone"))
         return;
+    QStringList others;
+    for (const QString &id : lightIds) {
+        for (const QString &light : m_store->resolveLights(id)) {
+            if (!isFromBridge(light))
+                others.append(light);
+        }
+    }
+    m_local->setMembers(zoneId, otherLights(), others);
+    if (!isFromBridge(zoneId)) {
+        m_local->update(zoneId, name, archetype);
+        return;
+    }
+    // The bridge wants at least one light in a zone; without, it keeps the ones it has.
     const QJsonObject body = zoneBody(name, archetype, lightIds);
     if (!body.value(QStringLiteral("children")).toArray().isEmpty())
         command(zoneId, body);
@@ -410,8 +510,13 @@ void HueClient::deleteZone(const QString &zoneId)
 {
     if (m_store->type(zoneId) != QLatin1String("zone"))
         return;
+    if (!isFromBridge(zoneId)) {
+        m_local->remove(zoneId);
+        return;
+    }
     const QString groupedLight = m_store->groupedLightOf(zoneId);
     finishRequest(m_bridge->remove(QStringLiteral("zone"), zoneId), [this, zoneId, groupedLight](const QByteArray &) {
+        m_local->remove(zoneId); // the Zigbee lights in it
         m_store->remove(zoneId);
         m_store->remove(groupedLight);
     });
@@ -433,6 +538,11 @@ void HueClient::renameLight(const QString &lightId, const QString &name)
 void HueClient::updateRoom(const QString &roomId, const QString &name, const QString &archetype)
 {
     const QString trimmed = name.trimmed().left(32);
+    if (HueResourceStore::sourceOf(roomId) == LocalGroups::Source) {
+        if (!trimmed.isEmpty())
+            m_local->update(roomId, trimmed, archetype);
+        return;
+    }
     if (m_store->type(roomId) != QLatin1String("room") || trimmed.isEmpty())
         return;
     QJsonObject metadata;
@@ -440,6 +550,44 @@ void HueClient::updateRoom(const QString &roomId, const QString &name, const QSt
     if (!archetype.isEmpty())
         metadata.insert(QStringLiteral("archetype"), archetype);
     command(roomId, object(QStringLiteral("metadata"), metadata));
+}
+
+QString HueClient::createRoom(const QString &name, const QString &archetype)
+{
+    if (name.trimmed().isEmpty())
+        return QString();
+    return m_local->create(QStringLiteral("room"), name, archetype);
+}
+
+void HueClient::deleteGroup(const QString &groupId)
+{
+    if (HueResourceStore::sourceOf(groupId) == LocalGroups::Source)
+        m_local->remove(groupId);
+}
+
+QString HueClient::roomOfLight(const QString &lightId) const
+{
+    return m_store->roomsOfLight(lightId).value(0);
+}
+
+void HueClient::setLightRoom(const QString &lightId, const QString &roomId)
+{
+    if (isFromBridge(lightId) || m_store->type(lightId) != QLatin1String("light"))
+        return; // the bridge's lights are in a room through their device, in the Hue app
+    // Its zones stay; only the room changes.
+    QStringList groups;
+    for (const QString &group : m_local->groupsOf(lightId)) {
+        if (m_store->type(group) == QLatin1String("zone"))
+            groups.append(group);
+    }
+    if (m_store->type(roomId) == QLatin1String("room"))
+        groups.append(roomId);
+    m_local->setGroups(lightId, groups);
+}
+
+bool HueClient::isFromBridge(const QString &id) const
+{
+    return HueResourceStore::sourceOf(id).isEmpty();
 }
 
 QStringList HueClient::lightsOf(const QString &groupId) const
@@ -459,6 +607,13 @@ void HueClient::setEnabled(const QString &id, bool enabled)
 
 void HueClient::allOff()
 {
+    for (const QString &id : m_store->idsOfType(QStringLiteral("light"))) {
+        if (!HueResourceStore::sourceOf(id).isEmpty()
+                && HueJson::at(m_store->resource(id), {QStringLiteral("on"), QStringLiteral("on")}).toBool()) {
+            setOn(id, false);
+        }
+    }
+
     // bridge_home has a grouped_light covering every light.
     const QStringList homes = m_store->idsOfType(QStringLiteral("bridge_home"));
     const QString all = homes.isEmpty() ? QString() : m_store->groupedLightOf(homes.first());
@@ -481,11 +636,23 @@ void HueClient::allOff()
 
 void HueClient::toggleGroup(const QString &groupId)
 {
-    const QString groupedLight = m_store->groupedLightOf(groupId);
-    if (groupedLight.isEmpty())
+    if (m_store->lightsOf(groupId).isEmpty())
         return;
-    const bool on = HueJson::at(m_store->resource(groupedLight), {QStringLiteral("on"), QStringLiteral("on")}).toBool();
-    setOn(groupedLight, !on);
+    setOn(groupId, !isGroupOn(groupId));
+}
+
+bool HueClient::isGroupOn(const QString &groupId) const
+{
+    const QString groupedLight = m_store->groupedLightOf(groupId);
+    if (HueJson::at(m_store->resource(groupedLight), {QStringLiteral("on"), QStringLiteral("on")}).toBool())
+        return true;
+    for (const QString &light : m_store->lightsOf(groupId)) {
+        if ((groupedLight.isEmpty() || !isFromBridge(light))
+                && HueJson::at(m_store->resource(light), {QStringLiteral("on"), QStringLiteral("on")}).toBool()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 QVariantList HueClient::coverActions() const
@@ -539,6 +706,87 @@ void HueClient::runCoverAction(int slot)
         toggleGroup(id);
     else if (kind == QLatin1String("scene"))
         recallScene(id);
+}
+
+bool HueClient::isMqttConfigured() const
+{
+    return !mqttHost().isEmpty();
+}
+
+QString HueClient::mqttHost() const
+{
+    return m_settings->value(kMqttHost).toString();
+}
+
+int HueClient::mqttPort() const
+{
+    return m_settings->value(kMqttPort, 1883).toInt();
+}
+
+QString HueClient::mqttUser() const
+{
+    return m_settings->value(kMqttUser).toString();
+}
+
+QString HueClient::mqttBaseTopic() const
+{
+    return m_settings->value(kMqttBase, QStringLiteral("zigbee2mqtt")).toString();
+}
+
+HueClient::MqttState HueClient::mqttState() const
+{
+    if (!isMqttConfigured())
+        return MqttOff;
+    switch (m_mqtt->state()) {
+    case MqttClient::Idle:
+    case MqttClient::Connecting: return MqttConnecting;
+    case MqttClient::Connected: return MqttConnected;
+    case MqttClient::WaitingToReconnect: return MqttReconnecting;
+    case MqttClient::Refused: return MqttRefused;
+    }
+    return MqttOff;
+}
+
+void HueClient::setMqttConfig(const QString &host, int port, const QString &user,
+                              const QString &password, const QString &baseTopic)
+{
+    const QString trimmedUser = user.trimmed();
+    if (!password.isEmpty() || trimmedUser != mqttUser())
+        m_settings->setValue(kMqttPassword, password);
+    m_settings->setValue(kMqttHost, host.trimmed());
+    m_settings->setValue(kMqttPort, port > 0 && port < 65536 ? port : 1883);
+    m_settings->setValue(kMqttUser, trimmedUser);
+    m_settings->setValue(kMqttBase, baseTopic.trimmed().isEmpty() ? QStringLiteral("zigbee2mqtt")
+                                                                  : baseTopic.trimmed());
+    m_settings->sync();
+    applyMqttConfig();
+    emit mqttConfigChanged();
+}
+
+void HueClient::forgetMqtt()
+{
+    m_settings->remove(QStringLiteral("mqtt"));
+    m_settings->sync();
+    applyMqttConfig();
+    emit mqttConfigChanged();
+}
+
+void HueClient::applyMqttConfig()
+{
+    m_mqtt->stop();
+    m_mqtt->clearSubscriptions();
+    m_zigbee->clear();
+    m_mqttError.clear();
+    MqttConfig config;
+    config.host = mqttHost();
+    config.port = mqttPort();
+    config.user = mqttUser();
+    config.password = m_settings->value(kMqttPassword).toString();
+    m_mqtt->setConfig(config);
+    m_zigbee->setBaseTopic(mqttBaseTopic());
+    if (config.isValid())
+        m_mqtt->start();
+    emit mqttStateChanged();
 }
 
 QColor HueClient::mirekColor(int mirek) const

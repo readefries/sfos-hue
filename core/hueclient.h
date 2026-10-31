@@ -16,9 +16,12 @@ class HueCommandQueue;
 class HueDiscovery;
 class HuePairing;
 class HueResourceStore;
+class LocalGroups;
+class MqttClient;
 class QNetworkAccessManager;
 class QNetworkReply;
 class QSettings;
+class Zigbee2Mqtt;
 
 // Everything the UI needs, in one object: the paired bridge (remembered in settings), its live
 // state in `store`, finding and pairing bridges, and commands.
@@ -42,6 +45,14 @@ class HueClient : public QObject
     // The cover's two buttons: [{kind, id, name, archetype}, {...}], kind being "none", "alloff",
     // "group" (switch a room or zone on or off) or "scene".
     Q_PROPERTY(QVariantList coverActions READ coverActions NOTIFY coverActionsChanged)
+    // zigbee2mqtt, through an MQTT broker; its devices join the bridge's in `store`.
+    Q_PROPERTY(bool mqttConfigured READ isMqttConfigured NOTIFY mqttConfigChanged)
+    Q_PROPERTY(QString mqttHost READ mqttHost NOTIFY mqttConfigChanged)
+    Q_PROPERTY(int mqttPort READ mqttPort NOTIFY mqttConfigChanged)
+    Q_PROPERTY(QString mqttUser READ mqttUser NOTIFY mqttConfigChanged)
+    Q_PROPERTY(QString mqttBaseTopic READ mqttBaseTopic NOTIFY mqttConfigChanged)
+    Q_PROPERTY(MqttState mqttState READ mqttState NOTIFY mqttStateChanged)
+    Q_PROPERTY(QString mqttError READ mqttError NOTIFY mqttStateChanged)
 public:
     enum State {
         NotConfigured,
@@ -59,6 +70,15 @@ public:
         PairingFailed
     };
     Q_ENUM(PairingState)
+
+    enum MqttState {
+        MqttOff,
+        MqttConnecting,
+        MqttConnected,
+        MqttReconnecting,
+        MqttRefused
+    };
+    Q_ENUM(MqttState)
 
     // settingsPath: where to remember the bridge; empty for the app's config directory.
     explicit HueClient(const QString &settingsPath = QString(), QObject *parent = nullptr);
@@ -82,8 +102,8 @@ public:
     Q_INVOKABLE void forget();
     Q_INVOKABLE void reconnect();
 
-    // id: a light, a fixture (all its lights) or a grouped_light (rooms and zones pass their
-    // groupedLightId).
+    // id: a light, a fixture (all its lights), a grouped_light, or a room or zone (its
+    // grouped_light, or each of its lights if it has none, like the Zigbee room).
     Q_INVOKABLE void setOn(const QString &id, bool on);
     Q_INVOKABLE void setBrightness(const QString &id, double brightness);
     Q_INVOKABLE void setColor(const QString &id, const QColor &color);
@@ -96,7 +116,8 @@ public:
     Q_INVOKABLE void storeScene(const QString &sceneId);
     Q_INVOKABLE void deleteScene(const QString &sceneId);
 
-    // Zones: lights from any rooms, switched together. lightIds may hold fixtures.
+    // Zones: lights from any rooms, switched together. lightIds may hold fixtures. Zigbee lights
+    // are added on the phone (the bridge can't hold them); a zone of only those is Lampje's own.
     Q_INVOKABLE void createZone(const QString &name, const QString &archetype, const QStringList &lightIds);
     Q_INVOKABLE void updateZone(const QString &zoneId, const QString &name, const QString &archetype,
                                 const QStringList &lightIds);
@@ -106,7 +127,17 @@ public:
     Q_INVOKABLE QStringList resolveLights(const QString &id) const;
     // A light's name is its device's (the light's own is a deprecated copy), so both change.
     Q_INVOKABLE void renameLight(const QString &lightId, const QString &name);
+    // The bridge's rooms, or Lampje's own rooms and zones.
     Q_INVOKABLE void updateRoom(const QString &roomId, const QString &name, const QString &archetype);
+    // A room of Lampje's own, for lights the bridge doesn't know; returns its id.
+    Q_INVOKABLE QString createRoom(const QString &name, const QString &archetype);
+    // Only Lampje's own rooms and zones.
+    Q_INVOKABLE void deleteGroup(const QString &groupId);
+    // The room a light is in (empty if none), and putting a Zigbee light in one.
+    Q_INVOKABLE QString roomOfLight(const QString &lightId) const;
+    Q_INVOKABLE void setLightRoom(const QString &lightId, const QString &roomId);
+    // Whether the bridge (rather than zigbee2mqtt or Lampje itself) has it.
+    Q_INVOKABLE bool isFromBridge(const QString &id) const;
     // Switch a sensor service (e.g. motion) on or off.
     Q_INVOKABLE void setEnabled(const QString &id, bool enabled);
     Q_INVOKABLE void allOff();
@@ -118,6 +149,20 @@ public:
     QVariantList coverActions() const;
     Q_INVOKABLE void setCoverAction(int slot, const QString &kind, const QString &id = QString());
     Q_INVOKABLE void runCoverAction(int slot);
+
+    bool isMqttConfigured() const;
+    QString mqttHost() const;
+    int mqttPort() const;
+    QString mqttUser() const;
+    QString mqttBaseTopic() const;
+    MqttState mqttState() const;
+    QString mqttError() const { return m_mqttError; }
+    Zigbee2Mqtt *zigbee() const { return m_zigbee; }
+    MqttClient *mqtt() const { return m_mqtt; }
+    // An empty password keeps the one there is (if the user stays the same).
+    Q_INVOKABLE void setMqttConfig(const QString &host, int port, const QString &user,
+                                   const QString &password, const QString &baseTopic);
+    Q_INVOKABLE void forgetMqtt();
 
 public slots:
     // From the application's state: after a while in the background (or asleep), the stream may
@@ -132,13 +177,20 @@ signals:
     void paired();
     void sceneCreated(const QString &sceneId);
     void coverActionsChanged();
+    void mqttConfigChanged();
+    void mqttStateChanged();
 
 private:
     QJsonArray sceneActions(const QString &groupId) const;
     QJsonObject zoneBody(const QString &name, const QString &archetype, const QStringList &lightIds) const;
     void finishRequest(QNetworkReply *reply, const std::function<void(const QByteArray &body)> &done = nullptr);
     void command(const QString &target, const QJsonObject &body, const QJsonObject &optimistic = QJsonObject());
+    bool isGroupOn(const QString &groupId) const;
+    QStringList otherLights() const;
+    // Like command(), but a room or zone stands for its lights.
+    void lightCommand(const QString &target, const QJsonObject &body, const QJsonObject &optimistic = QJsonObject());
     void applyConfig();
+    void applyMqttConfig();
     void updateState();
     void setLastError(const QString &error);
     void setPairing(PairingState state, int secondsLeft, const QString &error);
@@ -150,6 +202,10 @@ private:
     HueCommandQueue *m_queue;
     HueDiscovery *m_discovery;
     HuePairing *m_pairing;
+    MqttClient *m_mqtt;
+    Zigbee2Mqtt *m_zigbee;
+    LocalGroups *m_local;
+    QString m_mqttError;
     State m_state = NotConfigured;
     QString m_lastError;
     PairingState m_pairingState = PairingIdle;
