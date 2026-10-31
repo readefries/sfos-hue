@@ -58,7 +58,19 @@ HueClient::HueClient(const QString &settingsPath, QObject *parent)
     , m_pairing(new HuePairing(m_nam, this))
 {
     connect(m_bridge, &HueBridge::stateChanged, this, &HueClient::updateState);
-
+    // Cover actions show names and icons of rooms, zones and scenes, which only the store knows.
+    connect(m_store, &HueResourceStore::resourcesReset, this, &HueClient::coverActionsChanged);
+    auto coverActionChanged = [this](const QString &id) {
+        for (int slot = 1; slot <= 2; ++slot) {
+            if (m_settings->value(QStringLiteral("cover/action%1Id").arg(slot)).toString() == id) {
+                emit coverActionsChanged();
+                return;
+            }
+        }
+    };
+    connect(m_store, &HueResourceStore::resourceAdded, this, coverActionChanged);
+    connect(m_store, &HueResourceStore::resourceChanged, this, coverActionChanged);
+    connect(m_store, &HueResourceStore::resourceRemoved, this, coverActionChanged);
     connect(m_bridge, &HueBridge::errorOccurred, this, &HueClient::setLastError);
     connect(m_queue, &HueCommandQueue::commandFailed, this,
             [this](const QString &, const QString &, const QString &error) {
@@ -167,10 +179,12 @@ void HueClient::forget()
 {
     // The key stays valid on the bridge; it can only be removed in the official app.
     m_settings->remove(QStringLiteral("bridge"));
+    m_settings->remove(QStringLiteral("cover"));
     m_settings->sync();
     setLastError(QString());
     applyConfig();
     emit configuredChanged();
+    emit coverActionsChanged();
 }
 
 void HueClient::reconnect()
@@ -373,6 +387,68 @@ void HueClient::allOff()
         if (!groupedLight.isEmpty())
             setOn(groupedLight, false);
     }
+}
+
+void HueClient::toggleGroup(const QString &groupId)
+{
+    const QString groupedLight = m_store->groupedLightOf(groupId);
+    if (groupedLight.isEmpty())
+        return;
+    const bool on = HueJson::at(m_store->resource(groupedLight), {QStringLiteral("on"), QStringLiteral("on")}).toBool();
+    setOn(groupedLight, !on);
+}
+
+QVariantList HueClient::coverActions() const
+{
+    QVariantList actions;
+    for (int slot = 0; slot < 2; ++slot) {
+        const QString prefix = QStringLiteral("cover/action%1").arg(slot + 1);
+        // Out of the box, the first button switches everything off, as the cover always did.
+        QString kind = m_settings->value(prefix + QStringLiteral("Kind"),
+                                         slot == 0 ? QStringLiteral("alloff") : QStringLiteral("none")).toString();
+        const QString id = m_settings->value(prefix + QStringLiteral("Id")).toString();
+        QVariantMap action;
+        if (kind == QLatin1String("group") || kind == QLatin1String("scene")) {
+            // Gone from the bridge (or not loaded yet): no button.
+            if (m_store->type(id).isEmpty() || (kind == QLatin1String("scene")) != (m_store->type(id) == QLatin1String("scene")))
+                kind = QStringLiteral("none");
+            action.insert(QStringLiteral("id"), id);
+            action.insert(QStringLiteral("name"), m_store->name(id));
+            action.insert(QStringLiteral("archetype"), HueJson::at(m_store->resource(id),
+                          {QStringLiteral("metadata"), QStringLiteral("archetype")}).toString());
+            if (kind == QLatin1String("scene")) {
+                const QString group = HueJson::at(m_store->resource(id), {QStringLiteral("group"), QStringLiteral("rid")}).toString();
+                action.insert(QStringLiteral("groupName"), m_store->name(group));
+            }
+        }
+        action.insert(QStringLiteral("kind"), kind);
+        actions.append(action);
+    }
+    return actions;
+}
+
+void HueClient::setCoverAction(int slot, const QString &kind, const QString &id)
+{
+    if (slot < 0 || slot > 1)
+        return;
+    const QString prefix = QStringLiteral("cover/action%1").arg(slot + 1);
+    m_settings->setValue(prefix + QStringLiteral("Kind"), kind);
+    m_settings->setValue(prefix + QStringLiteral("Id"), id);
+    m_settings->sync();
+    emit coverActionsChanged();
+}
+
+void HueClient::runCoverAction(int slot)
+{
+    const QVariantMap action = coverActions().value(slot).toMap();
+    const QString kind = action.value(QStringLiteral("kind")).toString();
+    const QString id = action.value(QStringLiteral("id")).toString();
+    if (kind == QLatin1String("alloff"))
+        allOff();
+    else if (kind == QLatin1String("group"))
+        toggleGroup(id);
+    else if (kind == QLatin1String("scene"))
+        recallScene(id);
 }
 
 QColor HueClient::mirekColor(int mirek) const

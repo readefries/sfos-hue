@@ -1,8 +1,17 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.lampje 1.0
+import "../components/icons.js" as Icons
 
 CoverBackground {
+    id: cover
+
+    // Two buttons at most; which of them there are is set in Settings.
+    readonly property var actions: hue.coverActions
+    readonly property bool hasFirst: actions.length > 0 && actions[0].kind !== "none"
+    readonly property bool hasSecond: actions.length > 1 && actions[1].kind !== "none"
+    readonly property bool active: hue.state === HueClient.Connected
+
     RoomModel {
         id: rooms
         store: hue.store
@@ -59,11 +68,30 @@ CoverBackground {
     }
 
     CoverActionList {
-        enabled: hue.state === HueClient.Connected
-
+        enabled: cover.active && cover.hasFirst && cover.hasSecond
         CoverAction {
-            iconSource: "image://theme/icon-cover-cancel"
-            onTriggered: hue.allOff()
+            iconSource: cover.hasFirst ? Icons.coverAction(cover.actions[0]) : ""
+            onTriggered: hue.runCoverAction(0)
+        }
+        CoverAction {
+            iconSource: cover.hasSecond ? Icons.coverAction(cover.actions[1]) : ""
+            onTriggered: hue.runCoverAction(1)
+        }
+    }
+
+    CoverActionList {
+        enabled: cover.active && cover.hasFirst && !cover.hasSecond
+        CoverAction {
+            iconSource: cover.hasFirst ? Icons.coverAction(cover.actions[0]) : ""
+            onTriggered: hue.runCoverAction(0)
+        }
+    }
+
+    CoverActionList {
+        enabled: cover.active && !cover.hasFirst && cover.hasSecond
+        CoverAction {
+            iconSource: cover.hasSecond ? Icons.coverAction(cover.actions[1]) : ""
+            onTriggered: hue.runCoverAction(1)
         }
     }
 }

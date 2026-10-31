@@ -32,15 +32,21 @@ DISTFILES += \
     qml/icons/room-home.svg \
     qml/icons/room-kitchen.svg \
     qml/icons/room-sofa.svg \
+    qml/icons/power.svg \
+    qml/icons/scene.svg \
     harbour-lampje.desktop \
     qml/harbour-lampje.qml \
+    qml/components/Choice.qml \
     qml/components/ColorWheel.qml \
+    qml/components/coveractions.js \
+    qml/components/icons.js \
     qml/components/GroupDelegate.qml \
     qml/components/LevelSlider.qml \
     qml/components/LightDelegate.qml \
     qml/components/LightIcon.qml \
     qml/components/RoomIcon.qml \
     qml/cover/CoverPage.qml \
+    qml/pages/CoverActionPage.qml \
     qml/pages/LightPage.qml \
     qml/pages/PairPage.qml \
     qml/pages/RoomPage.qml \

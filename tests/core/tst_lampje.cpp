@@ -636,6 +636,69 @@ private slots:
         QCOMPARE(fake.withMethod("DELETE").last().path, QByteArray("/clip/v2/resource/scene/scene-relax"));
     }
 
+    void clientCoverActions()
+    {
+        FakeHueBridge fake;
+        fake.pairReplies << QByteArray(R"([{"success": {"username": "client-key"}}])");
+        QTemporaryDir dir;
+        const QString settings = dir.path() + QStringLiteral("/lampje.conf");
+        {
+            HueClient client(settings);
+            client.pair(fake.host(), QStringLiteral("001788fffe00cafe"), QStringLiteral("Fake bridge"));
+            QTRY_COMPARE(client.state(), HueClient::Connected);
+
+            QCOMPARE(client.coverActions().size(), 2);
+            QCOMPARE(client.coverActions().at(0).toMap().value(QStringLiteral("kind")).toString(), QStringLiteral("alloff"));
+            QCOMPARE(client.coverActions().at(1).toMap().value(QStringLiteral("kind")).toString(), QStringLiteral("none"));
+
+            QSignalSpy changed(&client, &HueClient::coverActionsChanged);
+            client.setCoverAction(0, QStringLiteral("group"), QStringLiteral("room-living"));
+            client.setCoverAction(1, QStringLiteral("scene"), QStringLiteral("scene-relax"));
+            QCOMPARE(changed.count(), 2);
+            const QVariantMap room = client.coverActions().at(0).toMap();
+            QCOMPARE(room.value(QStringLiteral("name")).toString(), QStringLiteral("Living room"));
+            QCOMPARE(room.value(QStringLiteral("archetype")).toString(), QStringLiteral("living_room"));
+            const QVariantMap scene = client.coverActions().at(1).toMap();
+            QCOMPARE(scene.value(QStringLiteral("name")).toString(), QStringLiteral("Relax"));
+            QCOMPARE(scene.value(QStringLiteral("groupName")).toString(), QStringLiteral("Living room"));
+
+            // The living room is on, so its button switches it off; pressed again, on.
+            client.runCoverAction(0);
+            QTRY_COMPARE(fake.puts().size(), 1);
+            QCOMPARE(fake.puts().last().path, QByteArray("/clip/v2/resource/grouped_light/gl-living"));
+            QCOMPARE(fake.puts().last().body, QByteArray(R"({"on":{"on":false}})"));
+            client.runCoverAction(0);
+            QTRY_COMPARE(fake.puts().size(), 2);
+            QCOMPARE(fake.puts().last().body, QByteArray(R"({"on":{"on":true}})"));
+
+            client.runCoverAction(1);
+            QTRY_COMPARE(fake.puts().size(), 3);
+            QCOMPARE(fake.puts().last().path, QByteArray("/clip/v2/resource/scene/scene-relax"));
+
+            // Renaming the room, or changing its kind, changes the button.
+            changed.clear();
+            client.store()->applyUpdate(json(R"({"id": "room-living", "metadata": {"name": "Lounge", "archetype": "office"}})"));
+            QCOMPARE(changed.count(), 1);
+            QCOMPARE(client.coverActions().at(0).toMap().value(QStringLiteral("archetype")).toString(), QStringLiteral("office"));
+            QCOMPARE(client.coverActions().at(0).toMap().value(QStringLiteral("name")).toString(), QStringLiteral("Lounge"));
+            // Other changes don't bother the cover.
+            client.store()->applyUpdate(json(R"({"id": "light-1", "on": {"on": true}})"));
+            QCOMPARE(changed.count(), 1);
+
+            // A scene that's deleted leaves no button behind.
+            client.store()->remove(QStringLiteral("scene-relax"));
+            QCOMPARE(client.coverActions().at(1).toMap().value(QStringLiteral("kind")).toString(), QStringLiteral("none"));
+        }
+        {
+            // Remembered.
+            HueClient client(settings);
+            QTRY_COMPARE(client.state(), HueClient::Connected);
+            QCOMPARE(client.coverActions().at(0).toMap().value(QStringLiteral("kind")).toString(), QStringLiteral("group"));
+            client.forget();
+            QCOMPARE(client.coverActions().at(0).toMap().value(QStringLiteral("kind")).toString(), QStringLiteral("alloff"));
+        }
+    }
+
     void clientPairsAndControls()
     {
         FakeHueBridge fake;

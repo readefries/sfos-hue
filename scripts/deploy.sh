@@ -36,4 +36,5 @@ for rpm in "$@"; do
 done
 echo
 echo "Copied$names to $host. On the phone:"
-echo "  devel-su pkcon install-local$names"
+# A running copy keeps the old code (swiping it away doesn't always end it), so stop it too.
+echo "  devel-su pkcon install-local$names && pkill -f ^/usr/bin/harbour-lampje"

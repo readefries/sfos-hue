@@ -1,14 +1,47 @@
 <?xml version='1.0' encoding='utf-8'?>
 <TS version="2.1" language="nl">
 <context>
+    <name>CoverActionPage</name>
+    <message>
+        <location filename="../qml/pages/CoverActionPage.qml" line="32" />
+        <source>Left cover button</source>
+        <translation>Linkerknop op de cover</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CoverActionPage.qml" line="32" />
+        <source>Right cover button</source>
+        <translation>Rechterknop op de cover</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CoverActionPage.qml" line="36" />
+        <source>Nothing</source>
+        <translation>Niets</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CoverActionPage.qml" line="41" />
+        <source>All lights off</source>
+        <translation>Alle lampen uit</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CoverActionPage.qml" line="47" />
+        <source>Switch on or off</source>
+        <translation>Aan of uit</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CoverActionPage.qml" line="60" />
+        <source>Scenes</source>
+        <translation>Scènes</translation>
+    </message>
+</context>
+<context>
     <name>CoverPage</name>
     <message>
-        <location filename="../qml/cover/CoverPage.qml" line="13" />
+        <location filename="../qml/cover/CoverPage.qml" line="22" />
         <source>Connecting</source>
         <translation>Verbinden</translation>
     </message>
     <message>
-        <location filename="../qml/cover/CoverPage.qml" line="13" />
+        <location filename="../qml/cover/CoverPage.qml" line="22" />
         <source>No bridge</source>
         <translation>Geen bridge</translation>
     </message>
@@ -368,72 +401,92 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="21" />
+        <location filename="../qml/pages/SettingsPage.qml" line="22" />
         <source>Settings</source>
         <translation>Instellingen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="25" />
+        <location filename="../qml/pages/SettingsPage.qml" line="26" />
+        <source>Cover</source>
+        <translation>Cover</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="34" />
+        <source>The buttons on the app's cover, while it runs in the background</source>
+        <translation>De knoppen op de cover van de app, als die op de achtergrond draait</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="37" />
+        <source>Left button</source>
+        <translation>Linkerknop</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="42" />
+        <source>Right button</source>
+        <translation>Rechterknop</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="48" />
         <source>Bridge</source>
         <translation>Bridge</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="28" />
+        <location filename="../qml/pages/SettingsPage.qml" line="51" />
         <source>Name</source>
         <translation>Naam</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="32" />
+        <location filename="../qml/pages/SettingsPage.qml" line="55" />
         <source>Address</source>
         <translation>Adres</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="36" />
+        <location filename="../qml/pages/SettingsPage.qml" line="59" />
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="39" />
+        <location filename="../qml/pages/SettingsPage.qml" line="62" />
         <source>Connected</source>
         <translation>Verbonden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="40" />
+        <location filename="../qml/pages/SettingsPage.qml" line="63" />
         <source>Connecting</source>
         <translation>Verbinden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="41" />
+        <location filename="../qml/pages/SettingsPage.qml" line="64" />
         <source>Waiting to reconnect</source>
         <translation>Wacht om opnieuw te verbinden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="42" />
+        <location filename="../qml/pages/SettingsPage.qml" line="65" />
         <source>Not paired</source>
         <translation>Niet gekoppeld</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="43" />
+        <location filename="../qml/pages/SettingsPage.qml" line="66" />
         <source>Certificate changed</source>
         <translation>Certificaat veranderd</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="66" />
+        <location filename="../qml/pages/SettingsPage.qml" line="89" />
         <source>Reconnect</source>
         <translation>Opnieuw verbinden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="70" />
+        <location filename="../qml/pages/SettingsPage.qml" line="93" />
         <source>Forget bridge</source>
         <translation>Bridge vergeten</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="71" />
+        <location filename="../qml/pages/SettingsPage.qml" line="94" />
         <source>Forgetting bridge</source>
         <translation>Bridge vergeten</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="86" />
+        <location filename="../qml/pages/SettingsPage.qml" line="109" />
         <source>Forgetting only removes the bridge from this phone. To revoke the app's access, remove "lampje#sailfishos" in the Hue app.</source>
         <translation>Vergeten verwijdert de bridge alleen van deze telefoon. Verwijder "lampje#sailfishos" in de Hue-app om de app de toegang te ontnemen.</translation>
     </message>
@@ -479,6 +532,29 @@
         <location filename="../qml/pages/SetupPage.qml" line="143" />
         <source>IP address</source>
         <translation>IP-adres</translation>
+    </message>
+</context>
+<context>
+    <name>coveractions</name>
+    <message>
+        <location filename="../qml/components/coveractions.js" line="6" />
+        <source>All lights off</source>
+        <translation>Alle lampen uit</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/coveractions.js" line="7" />
+        <source>Switch %1 on or off</source>
+        <translation>%1 aan of uit</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/coveractions.js" line="8" />
+        <source>%1 in %2</source>
+        <translation>%1 in %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/coveractions.js" line="9" />
+        <source>Nothing</source>
+        <translation>Niets</translation>
     </message>
 </context>
 </TS>

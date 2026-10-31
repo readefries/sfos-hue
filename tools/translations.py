@@ -106,6 +106,17 @@ NL = {
         "Vervangt wat de scène doet door hoe de lampen in %1 nu staan",
     "The scene remembers the lights in %1 as they are now: which are on, how bright, and their colour.":
         "De scène onthoudt hoe de lampen in %1 nu staan: welke aan zijn, hoe fel en in welke kleur.",
+    "Switch %1 on or off": "%1 aan of uit",
+    "%1 in %2": "%1 in %2",
+    "Nothing": "Niets",
+    "Left cover button": "Linkerknop op de cover",
+    "Right cover button": "Rechterknop op de cover",
+    "Switch on or off": "Aan of uit",
+    "Cover": "Cover",
+    "The buttons on the app's cover, while it runs in the background":
+        "De knoppen op de cover van de app, als die op de achtergrond draait",
+    "Left button": "Linkerknop",
+    "Right button": "Rechterknop",
 }
 
 

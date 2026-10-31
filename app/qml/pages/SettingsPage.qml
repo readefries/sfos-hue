@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.lampje 1.0
+import "../components/coveractions.js" as CoverActions
 
 Page {
     id: page
@@ -19,6 +20,28 @@ Page {
 
             PageHeader {
                 title: qsTr("Settings")
+            }
+
+            SectionHeader {
+                text: qsTr("Cover")
+            }
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * x
+                wrapMode: Text.Wrap
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryHighlightColor
+                text: qsTr("The buttons on the app's cover, while it runs in the background")
+            }
+            ValueButton {
+                label: qsTr("Left button")
+                value: CoverActions.describe(hue.coverActions[0])
+                onClicked: pageStack.push(Qt.resolvedUrl("CoverActionPage.qml"), { slot: 0 })
+            }
+            ValueButton {
+                label: qsTr("Right button")
+                value: CoverActions.describe(hue.coverActions[1])
+                onClicked: pageStack.push(Qt.resolvedUrl("CoverActionPage.qml"), { slot: 1 })
             }
 
             SectionHeader {

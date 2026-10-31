@@ -10,6 +10,7 @@
 
 #include <functional>
 #include <QObject>
+#include <QVariantList>
 
 class HueCommandQueue;
 class HueDiscovery;
@@ -38,6 +39,9 @@ class HueClient : public QObject
     Q_PROPERTY(PairingState pairingState READ pairingState NOTIFY pairingChanged)
     Q_PROPERTY(int pairingSecondsLeft READ pairingSecondsLeft NOTIFY pairingChanged)
     Q_PROPERTY(QString pairingError READ pairingError NOTIFY pairingChanged)
+    // The cover's two buttons: [{kind, id, name, archetype}, {...}], kind being "none", "alloff",
+    // "group" (switch a room or zone on or off) or "scene".
+    Q_PROPERTY(QVariantList coverActions READ coverActions NOTIFY coverActionsChanged)
 public:
     enum State {
         NotConfigured,
@@ -97,6 +101,13 @@ public:
     Q_INVOKABLE void allOff();
     Q_INVOKABLE QColor mirekColor(int mirek) const;
 
+    // Switches a room or zone off if any of its lights are on, otherwise on.
+    Q_INVOKABLE void toggleGroup(const QString &groupId);
+
+    QVariantList coverActions() const;
+    Q_INVOKABLE void setCoverAction(int slot, const QString &kind, const QString &id = QString());
+    Q_INVOKABLE void runCoverAction(int slot);
+
 public slots:
     // From the application's state: after a while in the background (or asleep), the stream may
     // be dead without anyone noticing, so becoming active reconnects.
@@ -109,6 +120,7 @@ signals:
     void pairingChanged();
     void paired();
     void sceneCreated(const QString &sceneId);
+    void coverActionsChanged();
 
 private:
     QJsonArray sceneActions(const QString &groupId) const;
