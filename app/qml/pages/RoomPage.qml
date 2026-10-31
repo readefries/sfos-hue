@@ -30,6 +30,21 @@ Page {
 
         PullDownMenu {
             MenuItem {
+                text: qsTr("Edit room")
+                visible: page.groupKind === "room"
+                onClicked: {
+                    var dialog = pageStack.push(Qt.resolvedUrl("EditDialog.qml"), {
+                                                    title: qsTr("Edit room"),
+                                                    name: page.groupName,
+                                                    archetype: page.groupArchetype,
+                                                    withKind: true
+                                                })
+                    dialog.accepted.connect(function() {
+                        hue.updateRoom(page.groupId, dialog.newName, dialog.newArchetype)
+                    })
+                }
+            }
+            MenuItem {
                 text: qsTr("Edit zone")
                 visible: page.groupKind === "zone"
                 onClicked: pageStack.push(Qt.resolvedUrl("ZoneDialog.qml"), {

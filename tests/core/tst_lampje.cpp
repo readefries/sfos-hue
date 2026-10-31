@@ -681,6 +681,39 @@ private slots:
         QCOMPARE(fake.withMethod("DELETE").last().path, QByteArray("/clip/v2/resource/zone/zone-reading"));
     }
 
+    void clientRenames()
+    {
+        FakeHueBridge fake;
+        fake.pairReplies << QByteArray(R"([{"success": {"username": "client-key"}}])");
+        QTemporaryDir dir;
+        HueClient client(dir.path() + QStringLiteral("/lampje.conf"));
+        client.pair(fake.host(), QStringLiteral("001788fffe00cafe"), QStringLiteral("Fake bridge"));
+        QTRY_COMPARE(client.state(), HueClient::Connected);
+
+        client.renameLight(QStringLiteral("light-1"), QStringLiteral(" Reading lamp "));
+        QCOMPARE(client.store()->name(QStringLiteral("light-1")), QStringLiteral("Reading lamp"));
+        QCOMPARE(client.store()->name(QStringLiteral("dev-1")), QStringLiteral("Reading lamp"));
+        QTRY_COMPARE(fake.puts().size(), 2);
+        QStringList paths;
+        for (const FakeHueBridge::Request &put : fake.puts()) {
+            paths << QString::fromLatin1(put.path);
+            QCOMPARE(put.body, QByteArray(R"({"metadata":{"name":"Reading lamp"}})"));
+        }
+        paths.sort();
+        QCOMPARE(paths, QStringList() << QStringLiteral("/clip/v2/resource/device/dev-1")
+                                      << QStringLiteral("/clip/v2/resource/light/light-1"));
+
+        // Nameless: nothing happens.
+        client.renameLight(QStringLiteral("light-1"), QStringLiteral("   "));
+
+        client.updateRoom(QStringLiteral("room-bed"), QStringLiteral("Guest room"), QStringLiteral("guest_room"));
+        QCOMPARE(client.store()->name(QStringLiteral("room-bed")), QStringLiteral("Guest room"));
+        QTRY_COMPARE(fake.puts().size(), 3);
+        const QJsonObject room = QJsonDocument::fromJson(fake.puts().last().body).object();
+        QCOMPARE(at(room, "metadata", "archetype").toString(), QStringLiteral("guest_room"));
+        QCOMPARE(fake.puts().last().path, QByteArray("/clip/v2/resource/room/room-bed"));
+    }
+
     void clientCoverActions()
     {
         FakeHueBridge fake;

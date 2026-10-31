@@ -28,6 +28,23 @@ Page {
         anchors.fill: parent
         contentHeight: column.height + Theme.paddingLarge
 
+        // A lamp with several spots is named after them; rename the spots instead.
+        PullDownMenu {
+            visible: page.lightId.indexOf("fixture:") !== 0
+            MenuItem {
+                text: qsTr("Rename")
+                onClicked: {
+                    var dialog = pageStack.push(Qt.resolvedUrl("EditDialog.qml"), {
+                                                    title: qsTr("Rename light"),
+                                                    name: page.lightName
+                                                })
+                    dialog.accepted.connect(function() {
+                        hue.renameLight(page.lightId, dialog.newName)
+                    })
+                }
+            }
+        }
+
         Column {
             id: column
             width: parent.width
@@ -41,6 +58,10 @@ Page {
                 delegate: Column {
                     width: column.width
                     spacing: Theme.paddingMedium
+
+                    // Follow renames.
+                    property string liveName: model.name
+                    onLiveNameChanged: page.lightName = liveName
 
                     Label {
                         x: Theme.horizontalPageMargin

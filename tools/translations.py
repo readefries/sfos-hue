@@ -135,6 +135,10 @@ NL = {
     "Garden": "Tuin",
     "Home": "Thuis",
     "Other": "Overig",
+    "Guest room": "Logeerkamer",
+    "Edit room": "Ruimte bewerken",
+    "Rename": "Naam wijzigen",
+    "Rename light": "Lamp hernoemen",
 }
 
 

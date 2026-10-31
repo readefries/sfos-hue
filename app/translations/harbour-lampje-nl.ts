@@ -48,6 +48,20 @@
     </message>
 </context>
 <context>
+    <name>EditDialog</name>
+    <message>
+        <location filename="../qml/pages/EditDialog.qml" line="24"/>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/EditDialog.qml" line="30"/>
+        <location filename="../qml/pages/EditDialog.qml" line="31"/>
+        <source>Name</source>
+        <translation>Naam</translation>
+    </message>
+</context>
+<context>
     <name>GroupDelegate</name>
     <message numerus="yes">
         <location filename="../qml/components/GroupDelegate.qml" line="49"/>
@@ -113,6 +127,14 @@
     </message>
 </context>
 <context>
+    <name>KindComboBox</name>
+    <message>
+        <location filename="../qml/components/KindComboBox.qml" line="15"/>
+        <source>Kind</source>
+        <translation>Soort</translation>
+    </message>
+</context>
+<context>
     <name>LightDelegate</name>
     <message>
         <location filename="../qml/components/LightDelegate.qml" line="50"/>
@@ -131,37 +153,47 @@
 <context>
     <name>LightPage</name>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="51"/>
+        <location filename="../qml/pages/LightPage.qml" line="35"/>
+        <source>Rename</source>
+        <translation>Naam wijzigen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/LightPage.qml" line="38"/>
+        <source>Rename light</source>
+        <translation>Lamp hernoemen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/LightPage.qml" line="72"/>
         <source>The bridge can&apos;t reach this light. Is it switched on at the wall?</source>
         <translation>De bridge kan deze lamp niet bereiken. Staat de schakelaar aan de muur aan?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="55"/>
+        <location filename="../qml/pages/LightPage.qml" line="76"/>
         <source>On</source>
         <translation>Aan</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="62"/>
+        <location filename="../qml/pages/LightPage.qml" line="83"/>
         <source>Brightness</source>
         <translation>Helderheid</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="73"/>
+        <location filename="../qml/pages/LightPage.qml" line="94"/>
         <source>White</source>
         <translation>Wit</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="79"/>
+        <location filename="../qml/pages/LightPage.qml" line="100"/>
         <source>Colour temperature</source>
         <translation>Kleurtemperatuur</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="106"/>
+        <location filename="../qml/pages/LightPage.qml" line="127"/>
         <source>Colour</source>
         <translation>Kleur</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="122"/>
+        <location filename="../qml/pages/LightPage.qml" line="143"/>
         <source>Spots</source>
         <translation>Spots</translation>
     </message>
@@ -183,36 +215,42 @@
     <name>RoomPage</name>
     <message>
         <location filename="../qml/pages/RoomPage.qml" line="33"/>
+        <location filename="../qml/pages/RoomPage.qml" line="37"/>
+        <source>Edit room</source>
+        <translation>Ruimte bewerken</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPage.qml" line="48"/>
         <source>Edit zone</source>
         <translation>Zone bewerken</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="42"/>
+        <location filename="../qml/pages/RoomPage.qml" line="57"/>
         <source>New scene from current lights</source>
         <translation>Nieuwe scène van de lampen nu</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="78"/>
+        <location filename="../qml/pages/RoomPage.qml" line="93"/>
         <source>On</source>
         <translation>Aan</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="85"/>
+        <location filename="../qml/pages/RoomPage.qml" line="100"/>
         <source>Brightness</source>
         <translation>Helderheid</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="98"/>
+        <location filename="../qml/pages/RoomPage.qml" line="113"/>
         <source>Scenes</source>
         <translation>Scènes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="109"/>
+        <location filename="../qml/pages/RoomPage.qml" line="124"/>
         <source>Tap to switch to a scene; press and hold to change it</source>
         <translation>Tik om een scène te kiezen; houd vast om hem aan te passen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="164"/>
+        <location filename="../qml/pages/RoomPage.qml" line="179"/>
         <source>Lights</source>
         <translation>Lampen</translation>
     </message>
@@ -563,108 +601,111 @@
 <context>
     <name>ZoneDialog</name>
     <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="20"/>
-        <source>Living room</source>
-        <translation>Woonkamer</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="21"/>
-        <source>Kitchen</source>
-        <translation>Keuken</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="22"/>
-        <source>Dining</source>
-        <translation>Eetkamer</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="23"/>
-        <source>Bedroom</source>
-        <translation>Slaapkamer</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="24"/>
-        <source>Kids&apos; bedroom</source>
-        <translation>Kinderkamer</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="25"/>
-        <source>Bathroom</source>
-        <translation>Badkamer</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="26"/>
-        <source>Office</source>
-        <translation>Kantoor</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="27"/>
-        <source>Hallway</source>
-        <translation>Gang</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="28"/>
-        <source>Garden</source>
-        <translation>Tuin</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="29"/>
-        <source>Home</source>
-        <translation>Thuis</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="30"/>
-        <source>Other</source>
-        <translation>Overig</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="93"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="75"/>
         <source>Delete zone</source>
         <translation>Zone verwijderen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="94"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="76"/>
         <source>Deleting zone</source>
         <translation>Zone verwijderen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="106"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="88"/>
         <source>New zone</source>
         <translation>Nieuwe zone</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="107"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="89"/>
         <source>Save</source>
         <translation>Opslaan</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="117"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="99"/>
         <source>A zone switches lights from different rooms together, like a room.</source>
         <translation>Een zone schakelt lampen uit verschillende ruimtes samen, net als een ruimte.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="123"/>
-        <location filename="../qml/pages/ZoneDialog.qml" line="124"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="105"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="106"/>
         <source>Name</source>
         <translation>Naam</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="133"/>
-        <source>Kind</source>
-        <translation>Soort</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ZoneDialog.qml" line="145"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="119"/>
         <source>Lights</source>
         <translation>Lampen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/pages/ZoneDialog.qml" line="152"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="126"/>
         <source>%n spot(s)</source>
         <translation>
             <numerusform>%n spot</numerusform>
             <numerusform>%n spots</numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>archetypes</name>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="6"/>
+        <source>Living room</source>
+        <translation>Woonkamer</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="7"/>
+        <source>Kitchen</source>
+        <translation>Keuken</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="8"/>
+        <source>Dining</source>
+        <translation>Eetkamer</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="9"/>
+        <source>Bedroom</source>
+        <translation>Slaapkamer</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="10"/>
+        <source>Kids&apos; bedroom</source>
+        <translation>Kinderkamer</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="11"/>
+        <source>Guest room</source>
+        <translation>Logeerkamer</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="12"/>
+        <source>Bathroom</source>
+        <translation>Badkamer</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="13"/>
+        <source>Office</source>
+        <translation>Kantoor</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="14"/>
+        <source>Hallway</source>
+        <translation>Gang</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="15"/>
+        <source>Garden</source>
+        <translation>Tuin</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="16"/>
+        <source>Home</source>
+        <translation>Thuis</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/archetypes.js" line="17"/>
+        <source>Other</source>
+        <translation>Overig</translation>
     </message>
 </context>
 <context>

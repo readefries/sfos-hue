@@ -104,6 +104,9 @@ public:
     // For editing zones: the lights of a room or zone, and of a fixture (or just the light).
     Q_INVOKABLE QStringList lightsOf(const QString &groupId) const;
     Q_INVOKABLE QStringList resolveLights(const QString &id) const;
+    // A light's name is its device's (the light's own is a deprecated copy), so both change.
+    Q_INVOKABLE void renameLight(const QString &lightId, const QString &name);
+    Q_INVOKABLE void updateRoom(const QString &roomId, const QString &name, const QString &archetype);
     // Switch a sensor service (e.g. motion) on or off.
     Q_INVOKABLE void setEnabled(const QString &id, bool enabled);
     Q_INVOKABLE void allOff();

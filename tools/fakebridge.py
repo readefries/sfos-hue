@@ -64,6 +64,9 @@ class Bridge:
             if res is None or res["type"] != rtype:
                 return None
             changes = []
+            if "metadata" in body and rtype in ("light", "device", "room"):
+                res["metadata"] = {**res.get("metadata", {}), **body["metadata"]}
+                changes.append({"id": rid, "type": rtype, "metadata": res["metadata"]})
             if rtype == "light":
                 changes += self.set_light(rid, body)
             elif rtype == "grouped_light":

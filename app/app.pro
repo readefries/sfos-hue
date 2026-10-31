@@ -38,6 +38,8 @@ DISTFILES += \
     qml/harbour-lampje.qml \
     qml/components/Choice.qml \
     qml/components/ColorWheel.qml \
+    qml/components/KindComboBox.qml \
+    qml/components/archetypes.js \
     qml/components/coveractions.js \
     qml/components/icons.js \
     qml/components/GroupDelegate.qml \
@@ -47,6 +49,7 @@ DISTFILES += \
     qml/components/RoomIcon.qml \
     qml/cover/CoverPage.qml \
     qml/pages/CoverActionPage.qml \
+    qml/pages/EditDialog.qml \
     qml/pages/LightPage.qml \
     qml/pages/PairPage.qml \
     qml/pages/RoomPage.qml \

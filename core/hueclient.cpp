@@ -417,6 +417,31 @@ void HueClient::deleteZone(const QString &zoneId)
     });
 }
 
+void HueClient::renameLight(const QString &lightId, const QString &name)
+{
+    const QString trimmed = name.trimmed().left(32);
+    if (m_store->type(lightId) != QLatin1String("light") || trimmed.isEmpty())
+        return;
+    const QJsonObject body = object(QStringLiteral("metadata"), object(QStringLiteral("name"), trimmed));
+    const QString device = m_store->deviceOf(lightId);
+    // A device with several lights keeps its own name; only this light changes.
+    if (!device.isEmpty() && m_store->servicesOf(device, QStringLiteral("light")).size() == 1)
+        command(device, body);
+    command(lightId, body);
+}
+
+void HueClient::updateRoom(const QString &roomId, const QString &name, const QString &archetype)
+{
+    const QString trimmed = name.trimmed().left(32);
+    if (m_store->type(roomId) != QLatin1String("room") || trimmed.isEmpty())
+        return;
+    QJsonObject metadata;
+    metadata.insert(QStringLiteral("name"), trimmed);
+    if (!archetype.isEmpty())
+        metadata.insert(QStringLiteral("archetype"), archetype);
+    command(roomId, object(QStringLiteral("metadata"), metadata));
+}
+
 QStringList HueClient::lightsOf(const QString &groupId) const
 {
     return m_store->lightsOf(groupId);

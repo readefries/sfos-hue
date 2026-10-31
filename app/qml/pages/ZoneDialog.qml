@@ -16,20 +16,6 @@ Dialog {
     property var selected: ({})
     property int selectedCount: 0
 
-    readonly property var archetypes: [
-        { id: "living_room", name: qsTr("Living room") },
-        { id: "kitchen", name: qsTr("Kitchen") },
-        { id: "dining", name: qsTr("Dining") },
-        { id: "bedroom", name: qsTr("Bedroom") },
-        { id: "kids_bedroom", name: qsTr("Kids' bedroom") },
-        { id: "bathroom", name: qsTr("Bathroom") },
-        { id: "office", name: qsTr("Office") },
-        { id: "hallway", name: qsTr("Hallway") },
-        { id: "garden", name: qsTr("Garden") },
-        { id: "home", name: qsTr("Home") },
-        { id: "other", name: qsTr("Other") }
-    ]
-
     function isSelected(id, selection) {
         var lights = hue.resolveLights(id)
         for (var i = 0; i < lights.length; ++i) {
@@ -58,16 +44,12 @@ Dialog {
         var lights = creating ? [] : hue.lightsOf(zoneId)
         for (var i = 0; i < lights.length; ++i)
             setSelected(lights[i], true)
-        for (var j = 0; j < archetypes.length; ++j) {
-            if (archetypes[j].id === zoneArchetype)
-                kindBox.currentIndex = j
-        }
     }
 
     canAccept: nameField.text.trim().length > 0 && selectedCount > 0
     onAccepted: {
         var lights = Object.keys(selected)
-        var archetype = archetypes[kindBox.currentIndex].id
+        var archetype = kindBox.selected
         if (creating)
             hue.createZone(nameField.text, archetype, lights)
         else
@@ -128,17 +110,9 @@ Dialog {
                 EnterKey.onClicked: focus = false
             }
 
-            ComboBox {
+            KindComboBox {
                 id: kindBox
-                label: qsTr("Kind")
-                menu: ContextMenu {
-                    Repeater {
-                        model: dialog.archetypes
-                        MenuItem {
-                            text: modelData.name
-                        }
-                    }
-                }
+                archetype: dialog.zoneArchetype
             }
 
             SectionHeader {
