@@ -96,6 +96,14 @@ public:
     Q_INVOKABLE void storeScene(const QString &sceneId);
     Q_INVOKABLE void deleteScene(const QString &sceneId);
 
+    // Zones: lights from any rooms, switched together. lightIds may hold fixtures.
+    Q_INVOKABLE void createZone(const QString &name, const QString &archetype, const QStringList &lightIds);
+    Q_INVOKABLE void updateZone(const QString &zoneId, const QString &name, const QString &archetype,
+                                const QStringList &lightIds);
+    Q_INVOKABLE void deleteZone(const QString &zoneId);
+    // For editing zones: the lights of a room or zone, and of a fixture (or just the light).
+    Q_INVOKABLE QStringList lightsOf(const QString &groupId) const;
+    Q_INVOKABLE QStringList resolveLights(const QString &id) const;
     // Switch a sensor service (e.g. motion) on or off.
     Q_INVOKABLE void setEnabled(const QString &id, bool enabled);
     Q_INVOKABLE void allOff();
@@ -124,6 +132,7 @@ signals:
 
 private:
     QJsonArray sceneActions(const QString &groupId) const;
+    QJsonObject zoneBody(const QString &name, const QString &archetype, const QStringList &lightIds) const;
     void finishRequest(QNetworkReply *reply, const std::function<void(const QByteArray &body)> &done = nullptr);
     void command(const QString &target, const QJsonObject &body, const QJsonObject &optimistic = QJsonObject());
     void applyConfig();

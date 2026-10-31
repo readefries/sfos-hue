@@ -81,8 +81,8 @@ before it succeeds. `--cert`/`--key` serve HTTPS, to try the certificate pinning
 
 - **Done since the first version:** lamps with several spots as one light; sensors and switches
   (motion, temperature, light level, buttons, batteries; motion sensors can be switched off); icons
-  by lamp and room type; Dutch; creating, renaming, updating and deleting scenes; two configurable
-  cover buttons.
+  by lamp and room type; Dutch; creating, renaming, updating and deleting scenes; creating and editing zones;
+  two configurable cover buttons.
 - **Next:** renaming lights and rooms.
 - **Then:** motion sensor sensitivity; more than one bridge; storing the
   app key in Sailfish Secrets.

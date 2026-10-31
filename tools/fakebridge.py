@@ -71,6 +71,15 @@ class Bridge:
                 targets = self.all_lights() if owner["type"] == "bridge_home" else self.lights_of(owner)
                 for light in targets:
                     changes += self.set_light(light, body)
+            elif rtype == "zone":
+                change = {"id": rid, "type": "zone"}
+                if "metadata" in body:
+                    res["metadata"] = {**res.get("metadata", {}), **body["metadata"]}
+                    change["metadata"] = res["metadata"]
+                if "children" in body:
+                    res["children"] = body["children"]
+                    change["children"] = res["children"]
+                changes.append(change)
             elif rtype == "scene" and ("metadata" in body or "actions" in body):
                 change = {"id": rid, "type": "scene"}
                 for key in ("metadata", "actions"):
@@ -217,13 +226,33 @@ def make_handler(bridge, verbose):
             rtype, rid = parts[3], parts[4]
             with bridge.lock:
                 removed = bridge.resources.pop(rid, None)
+                gone = [{"id": rid, "type": rtype}]
+                # A zone takes its grouped_light along.
+                for service in (removed or {}).get("services", []):
+                    if bridge.resources.pop(service["rid"], None):
+                        gone.append({"id": service["rid"], "type": service["rtype"]})
             if removed is None:
                 self.send_json(404, {"errors": [{"description": f"resource {rtype}/{rid} not found"}]})
                 return
             self.send_json(200, {"errors": [], "data": [{"rid": rid, "rtype": rtype}]})
-            threading.Timer(0.3, bridge.publish, [[{"id": rid, "type": rtype}], "delete"]).start()
+            threading.Timer(0.3, bridge.publish, [gone, "delete"]).start()
 
         def do_POST(self):
+            if self.path == "/clip/v2/resource/zone":
+                if not self.authorized():
+                    return
+                zone = self.read_body()
+                zone_id, grouped_id = str(uuid.uuid4()), str(uuid.uuid4())
+                zone.update(id=zone_id, type="zone", services=[{"rid": grouped_id, "rtype": "grouped_light"}])
+                grouped = {"id": grouped_id, "type": "grouped_light", "owner": {"rid": zone_id, "rtype": "zone"},
+                           "on": {"on": False}, "dimming": {"brightness": 0.0}}
+                with bridge.lock:
+                    bridge.resources[zone_id] = zone
+                    bridge.resources[grouped_id] = grouped
+                    bridge.update_groups()
+                self.send_json(200, {"errors": [], "data": [{"rid": zone_id, "rtype": "zone"}]})
+                threading.Timer(0.3, bridge.publish, [[zone, grouped], "add"]).start()
+                return
             if self.path == "/clip/v2/resource/scene":
                 if not self.authorized():
                     return

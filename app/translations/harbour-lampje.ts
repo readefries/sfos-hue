@@ -50,7 +50,7 @@
 <context>
     <name>GroupDelegate</name>
     <message numerus="yes">
-        <location filename="../qml/components/GroupDelegate.qml" line="48"/>
+        <location filename="../qml/components/GroupDelegate.qml" line="49"/>
         <source>%n light(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -180,32 +180,37 @@
 <context>
     <name>RoomPage</name>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="31"/>
+        <location filename="../qml/pages/RoomPage.qml" line="33"/>
+        <source>Edit zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPage.qml" line="42"/>
         <source>New scene from current lights</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="57"/>
+        <location filename="../qml/pages/RoomPage.qml" line="78"/>
         <source>On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="64"/>
+        <location filename="../qml/pages/RoomPage.qml" line="85"/>
         <source>Brightness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="77"/>
+        <location filename="../qml/pages/RoomPage.qml" line="98"/>
         <source>Scenes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="88"/>
+        <location filename="../qml/pages/RoomPage.qml" line="109"/>
         <source>Tap to switch to a scene; press and hold to change it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="143"/>
+        <location filename="../qml/pages/RoomPage.qml" line="164"/>
         <source>Lights</source>
         <translation type="unfinished"></translation>
     </message>
@@ -224,41 +229,46 @@
     </message>
     <message>
         <location filename="../qml/pages/RoomsPage.qml" line="29"/>
+        <source>New zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomsPage.qml" line="34"/>
         <source>All lights off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="39"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="44"/>
         <source>Connecting…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="40"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="45"/>
         <source>Reconnecting…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="51"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="56"/>
         <source>Zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="51"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="56"/>
         <source>Rooms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="59"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="64"/>
         <source>No rooms yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="60"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="65"/>
         <source>Rooms and zones are set up in the Hue app</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="66"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="71"/>
         <source>Pull down for settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -543,6 +553,112 @@
         <location filename="../qml/pages/SetupPage.qml" line="143"/>
         <source>IP address</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ZoneDialog</name>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="20"/>
+        <source>Living room</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="21"/>
+        <source>Kitchen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="22"/>
+        <source>Dining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="23"/>
+        <source>Bedroom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="24"/>
+        <source>Kids&apos; bedroom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="25"/>
+        <source>Bathroom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="26"/>
+        <source>Office</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="27"/>
+        <source>Hallway</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="28"/>
+        <source>Garden</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="29"/>
+        <source>Home</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="30"/>
+        <source>Other</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="93"/>
+        <source>Delete zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="94"/>
+        <source>Deleting zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="106"/>
+        <source>New zone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="107"/>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="117"/>
+        <source>A zone switches lights from different rooms together, like a room.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="123"/>
+        <location filename="../qml/pages/ZoneDialog.qml" line="124"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="133"/>
+        <source>Kind</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ZoneDialog.qml" line="145"/>
+        <source>Lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/pages/ZoneDialog.qml" line="152"/>
+        <source>%n spot(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>

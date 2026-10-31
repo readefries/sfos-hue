@@ -8,6 +8,8 @@ Page {
 
     property string groupId
     property string groupName
+    property string groupKind
+    property string groupArchetype
 
     LightModel {
         id: lights
@@ -27,6 +29,15 @@ Page {
         model: lights
 
         PullDownMenu {
+            MenuItem {
+                text: qsTr("Edit zone")
+                visible: page.groupKind === "zone"
+                onClicked: pageStack.push(Qt.resolvedUrl("ZoneDialog.qml"), {
+                                              zoneId: page.groupId,
+                                              zoneName: page.groupName,
+                                              zoneArchetype: page.groupArchetype
+                                          })
+            }
             MenuItem {
                 text: qsTr("New scene from current lights")
                 enabled: hue.state === HueClient.Connected
@@ -52,6 +63,16 @@ Page {
                 }
                 delegate: Column {
                     width: list.width
+
+                    // Follow renames (e.g. of a zone, from its dialog).
+                    property string liveName: model.name
+                    property string liveArchetype: model.archetype
+                    onLiveNameChanged: page.groupName = liveName
+                    onLiveArchetypeChanged: page.groupArchetype = liveArchetype
+                    Component.onCompleted: {
+                        page.groupName = liveName
+                        page.groupArchetype = liveArchetype
+                    }
 
                     TextSwitch {
                         text: qsTr("On")

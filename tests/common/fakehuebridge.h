@@ -143,8 +143,9 @@ private:
         } else if (request.method == "PUT" && request.path.startsWith("/clip/v2/resource/")) {
             const QByteArray id = request.path.split('/').last();
             reply(socket, 200, "{\"data\":[{\"rid\":\"" + id + "\"}],\"errors\":[]}");
-        } else if (request.method == "POST" && request.path == "/clip/v2/resource/scene") {
-            reply(socket, 200, "{\"data\":[{\"rid\":\"scene-created\",\"rtype\":\"scene\"}],\"errors\":[]}");
+        } else if (request.method == "POST" && request.path.startsWith("/clip/v2/resource/")) {
+            const QByteArray type = request.path.split('/').last();
+            reply(socket, 200, "{\"data\":[{\"rid\":\"" + type + "-created\",\"rtype\":\"" + type + "\"}],\"errors\":[]}");
         } else if (request.method == "DELETE" && request.path.startsWith("/clip/v2/resource/")) {
             const QByteArray id = request.path.split('/').last();
             reply(socket, 200, "{\"data\":[{\"rid\":\"" + id + "\"}],\"errors\":[]}");

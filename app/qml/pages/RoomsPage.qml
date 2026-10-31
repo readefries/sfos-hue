@@ -26,6 +26,11 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("SensorsPage.qml"))
             }
             MenuItem {
+                text: qsTr("New zone")
+                enabled: hue.state === HueClient.Connected
+                onClicked: pageStack.push(Qt.resolvedUrl("ZoneDialog.qml"))
+            }
+            MenuItem {
                 text: qsTr("All lights off")
                 enabled: hue.state === HueClient.Connected
                 onClicked: hue.allOff()

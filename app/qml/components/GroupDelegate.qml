@@ -8,7 +8,8 @@ ListItem {
     contentHeight: column.height
     onClicked: pageStack.push(Qt.resolvedUrl("../pages/RoomPage.qml"), {
                                   groupId: model.resourceId,
-                                  groupName: model.name
+                                  groupName: model.name,
+                                  groupKind: model.kind
                               })
 
     Column {

@@ -362,6 +362,71 @@ void HueClient::deleteScene(const QString &sceneId)
     });
 }
 
+QJsonObject HueClient::zoneBody(const QString &name, const QString &archetype, const QStringList &lightIds) const
+{
+    QJsonArray children;
+    QStringList seen;
+    for (const QString &id : lightIds) {
+        for (const QString &light : m_store->resolveLights(id)) {
+            if (seen.contains(light) || m_store->type(light) != QLatin1String("light"))
+                continue;
+            seen.append(light);
+            QJsonObject child;
+            child.insert(QStringLiteral("rid"), light);
+            child.insert(QStringLiteral("rtype"), QStringLiteral("light"));
+            children.append(child);
+        }
+    }
+    QJsonObject metadata;
+    metadata.insert(QStringLiteral("name"), name.trimmed().left(32));
+    metadata.insert(QStringLiteral("archetype"), archetype.isEmpty() ? QStringLiteral("other") : archetype);
+    QJsonObject body;
+    body.insert(QStringLiteral("metadata"), metadata);
+    body.insert(QStringLiteral("children"), children);
+    return body;
+}
+
+void HueClient::createZone(const QString &name, const QString &archetype, const QStringList &lightIds)
+{
+    QJsonObject body = zoneBody(name, archetype, lightIds);
+    if (body.value(QStringLiteral("children")).toArray().isEmpty())
+        return;
+    body.insert(QStringLiteral("type"), QStringLiteral("zone"));
+    // The stream adds the zone, and its grouped_light.
+    finishRequest(m_bridge->post(QStringLiteral("zone"), body));
+}
+
+void HueClient::updateZone(const QString &zoneId, const QString &name, const QString &archetype,
+                           const QStringList &lightIds)
+{
+    if (m_store->type(zoneId) != QLatin1String("zone"))
+        return;
+    const QJsonObject body = zoneBody(name, archetype, lightIds);
+    if (!body.value(QStringLiteral("children")).toArray().isEmpty())
+        command(zoneId, body);
+}
+
+void HueClient::deleteZone(const QString &zoneId)
+{
+    if (m_store->type(zoneId) != QLatin1String("zone"))
+        return;
+    const QString groupedLight = m_store->groupedLightOf(zoneId);
+    finishRequest(m_bridge->remove(QStringLiteral("zone"), zoneId), [this, zoneId, groupedLight](const QByteArray &) {
+        m_store->remove(zoneId);
+        m_store->remove(groupedLight);
+    });
+}
+
+QStringList HueClient::lightsOf(const QString &groupId) const
+{
+    return m_store->lightsOf(groupId);
+}
+
+QStringList HueClient::resolveLights(const QString &id) const
+{
+    return m_store->resolveLights(id);
+}
+
 void HueClient::setEnabled(const QString &id, bool enabled)
 {
     command(id, object(QStringLiteral("enabled"), enabled));

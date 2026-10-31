@@ -117,6 +117,24 @@ NL = {
         "De knoppen op de cover van de app, als die op de achtergrond draait",
     "Left button": "Linkerknop",
     "Right button": "Rechterknop",
+    "New zone": "Nieuwe zone",
+    "Edit zone": "Zone bewerken",
+    "Delete zone": "Zone verwijderen",
+    "Deleting zone": "Zone verwijderen",
+    "A zone switches lights from different rooms together, like a room.":
+        "Een zone schakelt lampen uit verschillende ruimtes samen, net als een ruimte.",
+    "Kind": "Soort",
+    "Living room": "Woonkamer",
+    "Kitchen": "Keuken",
+    "Dining": "Eetkamer",
+    "Bedroom": "Slaapkamer",
+    "Kids' bedroom": "Kinderkamer",
+    "Bathroom": "Badkamer",
+    "Office": "Kantoor",
+    "Hallway": "Gang",
+    "Garden": "Tuin",
+    "Home": "Thuis",
+    "Other": "Overig",
 }
 
 

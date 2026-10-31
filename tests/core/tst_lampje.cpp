@@ -636,6 +636,51 @@ private slots:
         QCOMPARE(fake.withMethod("DELETE").last().path, QByteArray("/clip/v2/resource/scene/scene-relax"));
     }
 
+    void clientZones()
+    {
+        FakeHueBridge fake;
+        fake.pairReplies << QByteArray(R"([{"success": {"username": "client-key"}}])");
+        QTemporaryDir dir;
+        HueClient client(dir.path() + QStringLiteral("/lampje.conf"));
+        client.pair(fake.host(), QStringLiteral("001788fffe00cafe"), QStringLiteral("Fake bridge"));
+        QTRY_COMPARE(client.state(), HueClient::Connected);
+
+        // A light from each of two rooms, and a whole three-spot lamp.
+        const QString runner = HueResourceStore::fixtureId(QStringLiteral("929003046301"), QString());
+        QCOMPARE(client.resolveLights(runner).size(), 3);
+        client.createZone(QStringLiteral(" Kids "), QStringLiteral("kids_bedroom"),
+                          QStringList() << QStringLiteral("light-2") << QStringLiteral("light-3") << runner
+                                        << QStringLiteral("light-2"));
+        QTRY_COMPARE(fake.withMethod("POST").size(), 2); // pairing, then the zone
+        const FakeHueBridge::Request post = fake.withMethod("POST").last();
+        QCOMPARE(post.path, QByteArray("/clip/v2/resource/zone"));
+        const QJsonObject zone = QJsonDocument::fromJson(post.body).object();
+        QCOMPARE(zone.value(QStringLiteral("type")).toString(), QStringLiteral("zone"));
+        QCOMPARE(at(zone, "metadata", "name").toString(), QStringLiteral("Kids"));
+        QCOMPARE(at(zone, "metadata", "archetype").toString(), QStringLiteral("kids_bedroom"));
+        const QJsonArray children = zone.value(QStringLiteral("children")).toArray();
+        QCOMPARE(children.size(), 5); // no duplicates
+        for (const QJsonValue &child : children)
+            QCOMPARE(child.toObject().value(QStringLiteral("rtype")).toString(), QStringLiteral("light"));
+
+        // Nothing to switch: not created.
+        client.createZone(QStringLiteral("Empty"), QString(), QStringList());
+        QTest::qWait(100);
+        QCOMPARE(fake.withMethod("POST").size(), 2);
+
+        client.updateZone(QStringLiteral("zone-reading"), QStringLiteral("Reading"), QStringLiteral("reading"),
+                          QStringList() << QStringLiteral("light-1") << QStringLiteral("light-3"));
+        QCOMPARE(client.lightsOf(QStringLiteral("zone-reading")).size(), 2); // right away
+        QCOMPARE(client.store()->name(QStringLiteral("zone-reading")), QStringLiteral("Reading"));
+        QTRY_COMPARE(fake.puts().size(), 1);
+        QCOMPARE(fake.puts().last().path, QByteArray("/clip/v2/resource/zone/zone-reading"));
+
+        client.deleteZone(QStringLiteral("zone-reading"));
+        QTRY_VERIFY(!client.store()->contains(QStringLiteral("zone-reading")));
+        QVERIFY(!client.store()->contains(QStringLiteral("gl-reading")));
+        QCOMPARE(fake.withMethod("DELETE").last().path, QByteArray("/clip/v2/resource/zone/zone-reading"));
+    }
+
     void clientCoverActions()
     {
         FakeHueBridge fake;

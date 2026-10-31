@@ -54,4 +54,5 @@ DISTFILES += \
     qml/pages/SceneDialog.qml \
     qml/pages/SensorsPage.qml \
     qml/pages/SettingsPage.qml \
-    qml/pages/SetupPage.qml
+    qml/pages/SetupPage.qml \
+    qml/pages/ZoneDialog.qml
