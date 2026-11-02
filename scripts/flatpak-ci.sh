@@ -1,7 +1,7 @@
 #!/bin/sh
 # Builds the desktop app's Flatpak on a CI runner (Ubuntu), tests included.
 #
-#   scripts/flatpak-ci.sh              build and test only
+#   scripts/flatpak-ci.sh              build and test; dist/Lampje-<commit>.flatpak, unsigned, to try
 #   scripts/flatpak-ci.sh 1.2.3        a release: also, signed,
 #       site/repo/                     the Flatpak repo for GitHub Pages, which `flatpak update` follows
 #       site/lampje.flatpakref         what `flatpak install --user <url>` takes
@@ -41,7 +41,13 @@ build="flatpak-builder --user --install-deps-from=flathub --force-clean --disabl
        --state-dir=.flatpak-builder"
 
 if [ -z "$version" ]; then
-    $build flatpak-build "$manifest"
+    # Something to try from any branch: a bundle without signature or repo to update from.
+    $build --repo=repo flatpak-build "$manifest"
+    rm -rf dist
+    mkdir -p dist
+    name="Lampje-$(git rev-parse --short HEAD 2>/dev/null || echo dev).flatpak"
+    flatpak build-bundle --runtime-repo="$flathub" repo "dist/$name" $app
+    ls -l dist
     exit 0
 fi
 

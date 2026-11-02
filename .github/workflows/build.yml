@@ -56,6 +56,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Build Flatpak and run tests
         run: scripts/flatpak-ci.sh
+      # To try a branch: flatpak install --user ./Lampje-<commit>.flatpak (it doesn't update itself).
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lampje-flatpak
+          path: dist/*.flatpak
+          if-no-files-found: error
 
   # Releasing, once every build passed on main. semantic-release reads the Conventional Commits
   # since the last vX.Y.Z tag and decides the next version (fix: patch, feat: minor,
