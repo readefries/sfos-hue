@@ -12,3 +12,10 @@ __pycache__/
 /tests/*/tst_*
 !/tests/*/tst_*.cpp
 /z2m.json
+# Flatpak builds (scripts/flatpak-ci.sh)
+/.flatpak-builder/
+/flatpak-build/
+/repo/
+/site/
+/dist/
+/signing-key.gpg

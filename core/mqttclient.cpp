@@ -266,7 +266,11 @@ void MqttClient::open()
         if (socket == m_socket)
             fail(tr("The MQTT broker closed the connection"));
     });
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    connect(socket, &QTcpSocket::errorOccurred,
+#else
     connect(socket, static_cast<void (QTcpSocket::*)(QAbstractSocket::SocketError)>(&QTcpSocket::error),
+#endif
             this, [this, socket](QAbstractSocket::SocketError error) {
         if (socket != m_socket || error == QAbstractSocket::RemoteHostClosedError)
             return; // disconnected() handles that

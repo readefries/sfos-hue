@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Lampje
+GenericName=Hue lights
+GenericName[nl]=Hue-lampen
+Comment=Control Philips Hue lights
+Comment[nl]=Bedien Philips Hue-lampen
+Icon=nl.readefries.Lampje
+Exec=lampje
+Categories=Utility;Qt;KDE;
+Keywords=hue;philips;lights;lamps;zigbee;
+StartupWMClass=lampje

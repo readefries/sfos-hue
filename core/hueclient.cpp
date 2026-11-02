@@ -190,7 +190,19 @@ void HueClient::pair(const QString &host, const QString &bridgeId, const QString
     m_pairingId = bridgeId;
     m_pairingName = name;
     setPairing(WaitingForButton, 60, QString());
-    m_pairing->start(HueDiscovery::baseUrlFor(m_pairingHost), QStringLiteral("lampje#sailfishos"));
+    m_pairing->start(HueDiscovery::baseUrlFor(m_pairingHost), deviceType());
+}
+
+void HueClient::setDeviceName(const QString &device)
+{
+    // The bridge takes at most 19 characters after the "#".
+    QString name;
+    for (const QChar c : device.trimmed()) {
+        if (c.isLetterOrNumber() || c == QLatin1Char('-') || c == QLatin1Char('_'))
+            name.append(c);
+    }
+    if (!name.isEmpty())
+        m_deviceName = name.left(19);
 }
 
 void HueClient::cancelPairing()

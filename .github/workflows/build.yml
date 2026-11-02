@@ -48,6 +48,14 @@ jobs:
           path: build-docker/${{ matrix.release }}-${{ matrix.arch }}/*.rpm
           if-no-files-found: error
 
+  # The desktop app (Qt 6, Kirigami) as a Flatpak; the core's tests run in its build too.
+  desktop:
+    name: Desktop Flatpak
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build Flatpak and run tests
+        run: scripts/flatpak-ci.sh
 
   # Releasing, once every build passed on main. semantic-release reads the Conventional Commits
   # since the last vX.Y.Z tag and decides the next version (fix: patch, feat: minor,
@@ -56,7 +64,7 @@ jobs:
 
   # 1. Which version, if any? (A dry run: nothing is tagged or published.)
   version:
-    needs: build
+    needs: [build, desktop]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
@@ -100,9 +108,37 @@ jobs:
           path: build-docker/5.1.0.11-${{ matrix.arch }}/*.rpm
           if-no-files-found: error
 
+  # 2b. The desktop app with that version, signed: the Flatpak repo for GitHub Pages (which
+  # `flatpak update` follows) and a bundle for the release. The signing key is a subkey kept for
+  # this; flatpak/signing-key.asc is its public part.
+  package-desktop:
+    needs: version
+    if: needs.version.outputs.version != ''
+    name: Package ${{ needs.version.outputs.version }} desktop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build, sign and export the Flatpak
+        run: scripts/flatpak-ci.sh "$VERSION"
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          FLATPAK_GPG_KEY: ${{ secrets.FLATPAK_GPG_KEY }}
+          FLATPAK_GPG_KEY_ID: C0E2157761D97A4B9B8BE9ACAB32E11283B7013E
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-flatpak
+          path: dist/*.flatpak
+          if-no-files-found: error
+      # Deployed only once the release exists (pages, below).
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
   # 3. Checksums, provenance and the release itself.
   release:
-    needs: [version, package]
+    needs: [version, package, package-desktop]
     runs-on: ubuntu-latest
     permissions:
       contents: write     # tag and release
@@ -119,12 +155,14 @@ jobs:
           path: dist
           merge-multiple: true
       - name: Checksums
-        run: cd dist && sha256sum *.rpm > SHA256SUMS && cat SHA256SUMS
+        run: cd dist && sha256sum *.rpm *.flatpak > SHA256SUMS && cat SHA256SUMS
       # Signed statement that these files were built from this commit by this workflow:
       # gh attestation verify <file> -R readefries/sfos-hue
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          subject-path: dist/*.rpm
+          subject-path: |
+            dist/*.rpm
+            dist/*.flatpak
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
@@ -134,3 +172,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # The RPMs carry this version; refuse to publish them under another one.
           EXPECTED_VERSION: ${{ needs.version.outputs.version }}
+
+  # 4. The Flatpak repo on GitHub Pages, now that its release is out.
+  pages:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write    # publish the site
+      id-token: write # proving to Pages that this workflow is the one publishing
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

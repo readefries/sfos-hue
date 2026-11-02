@@ -3,6 +3,9 @@
 #define HUECLIENT_H
 
 #include "huebridge.h"
+// Not just declared: Qt 6 wants the types of pointer properties complete.
+#include "huediscovery.h"
+#include "hueresourcestore.h"
 
 #include <QColor>
 #include <QJsonArray>
@@ -13,9 +16,7 @@
 #include <QVariantList>
 
 class HueCommandQueue;
-class HueDiscovery;
 class HuePairing;
-class HueResourceStore;
 class LocalGroups;
 class MqttClient;
 class QNetworkAccessManager;
@@ -42,6 +43,8 @@ class HueClient : public QObject
     Q_PROPERTY(PairingState pairingState READ pairingState NOTIFY pairingChanged)
     Q_PROPERTY(int pairingSecondsLeft READ pairingSecondsLeft NOTIFY pairingChanged)
     Q_PROPERTY(QString pairingError READ pairingError NOTIFY pairingChanged)
+    // "lampje#<device>", as the Hue app lists it; set before QML sees it.
+    Q_PROPERTY(QString deviceType READ deviceType CONSTANT)
     // The cover's two buttons: [{kind, id, name, archetype}, {...}], kind being "none", "alloff",
     // "group" (switch a room or zone on or off) or "scene".
     Q_PROPERTY(QVariantList coverActions READ coverActions NOTIFY coverActionsChanged)
@@ -96,6 +99,10 @@ public:
     PairingState pairingState() const { return m_pairingState; }
     int pairingSecondsLeft() const { return m_pairingSecondsLeft; }
     QString pairingError() const { return m_pairingError; }
+
+    // What the bridge (and the Hue app's list of apps) calls this one: "lampje#<device>".
+    QString deviceType() const { return QStringLiteral("lampje#") + m_deviceName; }
+    void setDeviceName(const QString &device);
 
     Q_INVOKABLE void pair(const QString &host, const QString &bridgeId, const QString &name);
     Q_INVOKABLE void cancelPairing();
@@ -217,6 +224,7 @@ private:
     QString m_pairingError;
     QString m_pairingHost, m_pairingId, m_pairingName;
     qint64 m_inactiveSince = 0;
+    QString m_deviceName = QStringLiteral("sailfishos");
 };
 
 #endif // HUECLIENT_H

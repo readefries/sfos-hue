@@ -229,27 +229,27 @@
         <translation>De MQTT-broker heeft de verbinding verbroken</translation>
     </message>
     <message>
-        <location filename="../../core/mqttclient.cpp" line="285"/>
+        <location filename="../../core/mqttclient.cpp" line="289"/>
         <source>The MQTT broker sent something unexpected</source>
         <translation>Onverwacht antwoord van de MQTT-broker</translation>
     </message>
     <message>
-        <location filename="../../core/mqttclient.cpp" line="304"/>
+        <location filename="../../core/mqttclient.cpp" line="308"/>
         <source>The MQTT broker did not accept the user name or password</source>
         <translation>De MQTT-broker accepteert de gebruikersnaam of het wachtwoord niet</translation>
     </message>
     <message>
-        <location filename="../../core/mqttclient.cpp" line="305"/>
+        <location filename="../../core/mqttclient.cpp" line="309"/>
         <source>The MQTT broker did not allow this user to connect</source>
         <translation>De MQTT-broker laat deze gebruiker niet verbinden</translation>
     </message>
     <message>
-        <location filename="../../core/mqttclient.cpp" line="309"/>
+        <location filename="../../core/mqttclient.cpp" line="313"/>
         <source>The MQTT broker refused the connection (%1)</source>
         <translation>De MQTT-broker weigert de verbinding (%1)</translation>
     </message>
     <message>
-        <location filename="../../core/mqttclient.cpp" line="332"/>
+        <location filename="../../core/mqttclient.cpp" line="336"/>
         <source>The MQTT broker did not allow this user to subscribe</source>
         <translation>De MQTT-broker laat deze gebruiker niet abonneren</translation>
     </message>

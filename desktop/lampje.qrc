@@ -1,0 +1,50 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<!-- The phone's JS helpers and icons are shared, under the paths the QML expects. -->
+<qresource prefix="/">
+    <file>qml/pages/EditDialog.qml</file>
+    <file>qml/pages/LightPage.qml</file>
+    <file>qml/pages/MqttDialog.qml</file>
+    <file>qml/pages/PairPage.qml</file>
+    <file>qml/pages/RoomPage.qml</file>
+    <file>qml/pages/RoomPickerPage.qml</file>
+    <file>qml/pages/RoomsPage.qml</file>
+    <file>qml/pages/SceneDialog.qml</file>
+    <file>qml/pages/ScheduleDialog.qml</file>
+    <file>qml/pages/SchedulesPage.qml</file>
+    <file>qml/pages/SensorsPage.qml</file>
+    <file>qml/pages/SettingsPage.qml</file>
+    <file>qml/pages/SetupPage.qml</file>
+    <file>qml/pages/ZoneDialog.qml</file>
+    <file>qml/components/ColorWheel.qml</file>
+    <file>qml/components/FormPage.qml</file>
+    <file>qml/components/GroupDelegate.qml</file>
+    <file>qml/components/KindComboBox.qml</file>
+    <file>qml/components/LevelSlider.qml</file>
+    <file>qml/components/LightDelegate.qml</file>
+    <file>qml/components/LightIcon.qml</file>
+    <file>qml/components/RoomIcon.qml</file>
+    <file>qml/Main.qml</file>
+    <file alias="qml/components/archetypes.js">../app/qml/components/archetypes.js</file>
+    <file alias="qml/components/icons.js">../app/qml/components/icons.js</file>
+    <file alias="qml/components/schedules.js">../app/qml/components/schedules.js</file>
+    <file alias="qml/icons/light-bulb.svg">../app/qml/icons/light-bulb.svg</file>
+    <file alias="qml/icons/light-ceiling.svg">../app/qml/icons/light-ceiling.svg</file>
+    <file alias="qml/icons/light-floor.svg">../app/qml/icons/light-floor.svg</file>
+    <file alias="qml/icons/light-pendant.svg">../app/qml/icons/light-pendant.svg</file>
+    <file alias="qml/icons/light-spot.svg">../app/qml/icons/light-spot.svg</file>
+    <file alias="qml/icons/light-strip.svg">../app/qml/icons/light-strip.svg</file>
+    <file alias="qml/icons/light-table.svg">../app/qml/icons/light-table.svg</file>
+    <file alias="qml/icons/power.svg">../app/qml/icons/power.svg</file>
+    <file alias="qml/icons/room-bath.svg">../app/qml/icons/room-bath.svg</file>
+    <file alias="qml/icons/room-bed.svg">../app/qml/icons/room-bed.svg</file>
+    <file alias="qml/icons/room-desk.svg">../app/qml/icons/room-desk.svg</file>
+    <file alias="qml/icons/room-door.svg">../app/qml/icons/room-door.svg</file>
+    <file alias="qml/icons/room-garden.svg">../app/qml/icons/room-garden.svg</file>
+    <file alias="qml/icons/room-home.svg">../app/qml/icons/room-home.svg</file>
+    <file alias="qml/icons/room-kitchen.svg">../app/qml/icons/room-kitchen.svg</file>
+    <file alias="qml/icons/room-sofa.svg">../app/qml/icons/room-sofa.svg</file>
+    <file alias="qml/icons/scene.svg">../app/qml/icons/scene.svg</file>
+    <file alias="icons/lampje.svg">icons/nl.readefries.Lampje.svg</file>
+</qresource>
+</RCC>

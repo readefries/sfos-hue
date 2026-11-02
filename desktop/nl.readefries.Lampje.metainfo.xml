@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>nl.readefries.Lampje</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-or-later</project_license>
+  <name>Lampje</name>
+  <summary>Control Philips Hue lights</summary>
+  <description>
+    <p>
+      Talks directly to the Hue bridge on the local network: rooms and zones, single lights
+      (brightness, colour temperature, colour), scenes, sensors and the bridge's schedules, with
+      live updates when lights are changed elsewhere. Zigbee lights from zigbee2mqtt can join in
+      through an MQTT broker.
+    </p>
+  </description>
+  <launchable type="desktop-id">nl.readefries.Lampje.desktop</launchable>
+  <url type="homepage">https://github.com/readefries/sfos-hue</url>
+  <developer id="nl.readefries">
+    <name>Hendrik Bruinsma</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-11-02"/>
+  </releases>
+</component>

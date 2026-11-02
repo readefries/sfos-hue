@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Fills in app/translations/*.ts from the tables below, after lupdate (run by the build) has
+"""Fills in app/translations/*.ts and desktop/translations/*.ts from the tables below, after lupdate (run by the build) has
 added new strings. Strings missing here stay unfinished and show in English.
 
     tools/translations.py
@@ -210,6 +210,14 @@ NL = {
     "%n h": ["%n u", "%n u"],
     "%1 h %2 min": "%1 u %2 min",
     "%1 to %2": "%1 tot %2",
+    # Only on the desktop.
+    "Cancel": "Annuleren",
+    "Click to switch to a scene; right-click to change it": "Klik om naar een scène te gaan; rechtsklik om hem te wijzigen",
+    "Right-click to change or delete": "Rechtsklik om te wijzigen of te verwijderen",
+    "Forgetting only removes the bridge from this computer. To revoke the app's access, remove \"%1\" in the Hue app.":
+        "Vergeten verwijdert de bridge alleen van deze computer. Om de app de toegang te ontnemen, verwijder je \"%1\" in de Hue-app.",
+    "Connect this computer to the same network as your Hue bridge.": "Verbind deze computer met hetzelfde netwerk als je Hue bridge.",
+    "Connect": "Verbinden",
 }
 
 
@@ -242,11 +250,14 @@ def fill(path, table, language):
 
 
 def main():
-    folder = Path(__file__).resolve().parent.parent / "app" / "translations"
-    fill(folder / "harbour-lampje-en.ts", EN, "en")
-    missing = fill(folder / "harbour-lampje-nl.ts", NL, "nl")
-    for source in missing:
-        print(f"nl: not translated: {source!r}", file=sys.stderr)
+    root = Path(__file__).resolve().parent.parent
+    # The phone's and the desktop's; their strings mostly the same.
+    for folder, name in ((root / "app" / "translations", "harbour-lampje"),
+                         (root / "desktop" / "translations", "lampje")):
+        fill(folder / f"{name}-en.ts", EN, "en")
+        missing = fill(folder / f"{name}-nl.ts", NL, "nl")
+        for source in missing:
+            print(f"nl ({name}): not translated: {source!r}", file=sys.stderr)
     return 0
 
 
