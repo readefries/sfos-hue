@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Fills in app/translations/*.ts from the tables below, after lupdate (run by the build) has
+"""Fills in app/translations/*.ts and desktop/translations/*.ts from the tables below, after lupdate (run by the build) has
 added new strings. Strings missing here stay unfinished and show in English.
 
     tools/translations.py
@@ -17,6 +17,11 @@ EN = {
     "%n min ago": ["%n min ago", "%n min ago"],
     "%n h ago": ["%n h ago", "%n h ago"],
     "%n day(s) ago": ["%n day ago", "%n days ago"],
+    "%1 + %n min": ["%1 + %n min", "%1 + %n min"],
+    "%1 − %n min": ["%1 − %n min", "%1 − %n min"],
+    "%n s": ["%n s", "%n s"],
+    "%n min": ["%n min", "%n min"],
+    "%n h": ["%n h", "%n h"],
 }
 
 NL = {
@@ -139,6 +144,80 @@ NL = {
     "Edit room": "Ruimte bewerken",
     "Rename": "Naam wijzigen",
     "Rename light": "Lamp hernoemen",
+    "New room": "Nieuwe ruimte",
+    "Not in a room": "Niet in een ruimte",
+    "Room": "Ruimte",
+    "No room": "Geen ruimte",
+    "Delete room": "Ruimte verwijderen",
+    "Deleting room": "Ruimte verwijderen",
+    "Zigbee (MQTT)": "Zigbee (MQTT)",
+    "Lights and sensors from zigbee2mqtt, through an MQTT broker":
+        "Lampen en sensoren van zigbee2mqtt, via een MQTT-broker",
+    "Broker": "Broker",
+    "Refused": "Geweigerd",
+    "Change": "Wijzigen",
+    "Set up": "Instellen",
+    "Remove": "Verwijderen",
+    "Removing broker": "Broker verwijderen",
+    "MQTT broker": "MQTT-broker",
+    "Address, e.g. 192.168.1.10": "Adres, bijv. 192.168.1.10",
+    "Port": "Poort",
+    "User name": "Gebruikersnaam",
+    "User name (if the broker wants one)": "Gebruikersnaam (als de broker er een vraagt)",
+    "Password": "Wachtwoord",
+    "Password (unchanged)": "Wachtwoord (ongewijzigd)",
+    "Base topic": "Basistopic",
+    "The base topic is zigbee2mqtt's mqtt.base_topic setting; usually zigbee2mqtt. The password is sent unencrypted, so only use this on your own network.":
+        "Het basistopic is de instelling mqtt.base_topic van zigbee2mqtt; meestal zigbee2mqtt. Het wachtwoord gaat onversleuteld over het netwerk, dus gebruik dit alleen op je eigen netwerk.",
+    "The MQTT broker did not respond": "De MQTT-broker reageert niet",
+    "Lost the connection to the MQTT broker": "Verbinding met de MQTT-broker verloren",
+    "The MQTT broker closed the connection": "De MQTT-broker heeft de verbinding verbroken",
+    "The MQTT broker sent something unexpected": "Onverwacht antwoord van de MQTT-broker",
+    "The MQTT broker did not accept the user name or password": "De MQTT-broker accepteert de gebruikersnaam of het wachtwoord niet",
+    "The MQTT broker did not allow this user to connect": "De MQTT-broker laat deze gebruiker niet verbinden",
+    "The MQTT broker refused the connection (%1)": "De MQTT-broker weigert de verbinding (%1)",
+    "The MQTT broker did not allow this user to subscribe": "De MQTT-broker laat deze gebruiker niet abonneren",
+    "Whole home": "Hele huis",
+    "Schedules": "Schema's",
+    "Delete": "Verwijderen",
+    "Deleting schedule": "Schema verwijderen",
+    "Time": "Tijd",
+    "Days": "Dagen",
+    "Without days, it runs once.": "Zonder dagen gaat hij één keer af.",
+    "This schedule doesn't start at a fixed time; change it in the Hue app.":
+        "Dit schema begint niet op een vaste tijd; pas het aan in de Hue-app.",
+    "Not working: %1": "Werkt niet: %1",
+    "No schedules": "Geen schema's",
+    "Wake up, go to sleep and other automations are set up in the Hue app":
+        "Wakker worden, gaan slapen en andere automatiseringen stel je in met de Hue-app",
+    "Wake up": "Wakker worden",
+    "Go to sleep": "Gaan slapen",
+    "Timer": "Timer",
+    "Lights on a schedule": "Lampen volgens schema",
+    "Natural light": "Natuurlijk licht",
+    "Coming home": "Thuiskomen",
+    "Leaving home": "Weggaan",
+    "Once": "Eenmalig",
+    "Every day": "Elke dag",
+    "Weekdays": "Doordeweeks",
+    "Weekends": "In het weekend",
+    "Sunrise": "Zonsopkomst",
+    "Sunset": "Zonsondergang",
+    "%1 + %n min": ["%1 + %n min", "%1 + %n min"],
+    "%1 − %n min": ["%1 − %n min", "%1 − %n min"],
+    "%n s": ["%n s", "%n s"],
+    "%n min": ["%n min", "%n min"],
+    "%n h": ["%n u", "%n u"],
+    "%1 h %2 min": "%1 u %2 min",
+    "%1 to %2": "%1 tot %2",
+    # Only on the desktop.
+    "Cancel": "Annuleren",
+    "Click to switch to a scene; right-click to change it": "Klik om naar een scène te gaan; rechtsklik om hem te wijzigen",
+    "Right-click to change or delete": "Rechtsklik om te wijzigen of te verwijderen",
+    "Forgetting only removes the bridge from this computer. To revoke the app's access, remove \"%1\" in the Hue app.":
+        "Vergeten verwijdert de bridge alleen van deze computer. Om de app de toegang te ontnemen, verwijder je \"%1\" in de Hue-app.",
+    "Connect this computer to the same network as your Hue bridge.": "Verbind deze computer met hetzelfde netwerk als je Hue bridge.",
+    "Connect": "Verbinden",
 }
 
 
@@ -171,11 +250,14 @@ def fill(path, table, language):
 
 
 def main():
-    folder = Path(__file__).resolve().parent.parent / "app" / "translations"
-    fill(folder / "harbour-lampje-en.ts", EN, "en")
-    missing = fill(folder / "harbour-lampje-nl.ts", NL, "nl")
-    for source in missing:
-        print(f"nl: not translated: {source!r}", file=sys.stderr)
+    root = Path(__file__).resolve().parent.parent
+    # The phone's and the desktop's; their strings mostly the same.
+    for folder, name in ((root / "app" / "translations", "harbour-lampje"),
+                         (root / "desktop" / "translations", "lampje")):
+        fill(folder / f"{name}-en.ts", EN, "en")
+        missing = fill(folder / f"{name}-nl.ts", NL, "nl")
+        for source in missing:
+            print(f"nl ({name}): not translated: {source!r}", file=sys.stderr)
     return 0
 
 

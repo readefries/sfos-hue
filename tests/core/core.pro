@@ -9,5 +9,5 @@ QT = core gui network testlib
 
 DEFINES += FIXTURE_DIR=\\\"$$PWD/../common\\\"
 INCLUDEPATH += ../common
-HEADERS += ../common/fakehuebridge.h
+HEADERS += ../common/fakehuebridge.h ../common/fakemqttbroker.h
 SOURCES += tst_lampje.cpp

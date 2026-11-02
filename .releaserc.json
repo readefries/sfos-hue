@@ -10,6 +10,7 @@
     ["@semantic-release/github", {
       "assets": [
         { "path": "dist/*.rpm" },
+        { "path": "dist/*.flatpak" },
         { "path": "dist/SHA256SUMS", "label": "SHA256SUMS" }
       ],
       "successComment": false,

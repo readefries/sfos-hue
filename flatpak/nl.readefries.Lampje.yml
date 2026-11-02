@@ -1,0 +1,38 @@
+# The desktop app as a Flatpak, on KDE's runtime (Qt 6, Kirigami, Breeze). scripts/flatpak.sh
+# builds and installs it.
+id: nl.readefries.Lampje
+runtime: org.kde.Platform
+runtime-version: '6.11'
+sdk: org.kde.Sdk
+command: lampje
+finish-args:
+  # The bridge and the MQTT broker on the local network; mDNS to find the bridge.
+  - --share=network
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=dri
+modules:
+  - name: lampje
+    buildsystem: simple
+    build-commands:
+      - qmake PREFIX=${FLATPAK_DEST} harbour-lampje.pro
+      - make -j${FLATPAK_BUILDER_N_JOBS}
+      # The core's tests, against the fake bridge and broker on loopback.
+      - QT_QPA_PLATFORM=offscreen tests/core/tst_lampje -silent
+      - make install
+    sources:
+      - type: dir
+        path: ..
+        skip:
+          - .git
+          - build-aarch64
+          - build-i486
+          - build-docker
+          - .flatpak-builder
+          - flatpak-build
+          # scripts/flatpak-ci.sh's output
+          - repo
+          - site
+          - dist
+          - signing-key.gpg

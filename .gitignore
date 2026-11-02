@@ -11,3 +11,11 @@ __pycache__/
 # test binaries from in-tree builds, not their sources
 /tests/*/tst_*
 !/tests/*/tst_*.cpp
+/z2m.json
+# Flatpak builds (scripts/flatpak-ci.sh)
+/.flatpak-builder/
+/flatpak-build/
+/repo/
+/site/
+/dist/
+/signing-key.gpg

@@ -10,6 +10,8 @@ Page {
     property string groupName
     property string groupKind
     property string groupArchetype
+    // Rooms and zones of the bridge, rather than Lampje's own ("local:...").
+    readonly property bool fromBridge: hue.isFromBridge(groupId)
 
     LightModel {
         id: lights
@@ -23,12 +25,25 @@ Page {
         groupId: page.groupId
     }
 
+    RemorsePopup {
+        id: remorse
+    }
+
     SilicaListView {
         id: list
         anchors.fill: parent
         model: lights
 
         PullDownMenu {
+            MenuItem {
+                text: page.groupKind === "zone" ? qsTr("Delete zone") : qsTr("Delete room")
+                visible: !page.fromBridge
+                onClicked: remorse.execute(page.groupKind === "zone" ? qsTr("Deleting zone") : qsTr("Deleting room"),
+                                           function() {
+                                               pageStack.pop()
+                                               hue.deleteGroup(page.groupId)
+                                           })
+            }
             MenuItem {
                 text: qsTr("Edit room")
                 visible: page.groupKind === "room"
@@ -55,6 +70,7 @@ Page {
             }
             MenuItem {
                 text: qsTr("New scene from current lights")
+                visible: page.fromBridge
                 enabled: hue.state === HueClient.Connected
                 onClicked: pageStack.push(Qt.resolvedUrl("SceneDialog.qml"), {
                                               groupId: page.groupId,
@@ -91,20 +107,20 @@ Page {
 
                     TextSwitch {
                         text: qsTr("On")
-                        enabled: model.groupedLightId !== ""
+                        enabled: model.lightCount > 0
                         checked: model.on
                         automaticCheck: false
-                        onClicked: hue.setOn(model.groupedLightId, !model.on)
+                        onClicked: hue.setOn(model.resourceId, !model.on)
                     }
                     LevelSlider {
                         label: qsTr("Brightness")
-                        visible: model.groupedLightId !== ""
+                        visible: model.dimmable
                         minimumValue: 1
                         maximumValue: 100
                         stepSize: 1
                         valueText: Math.round(value) + " %"
                         level: model.brightness
-                        onChangeRequested: hue.setBrightness(model.groupedLightId, value)
+                        onChangeRequested: hue.setBrightness(model.resourceId, value)
                     }
                 }
             }

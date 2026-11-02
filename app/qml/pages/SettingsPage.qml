@@ -45,6 +45,66 @@ Page {
             }
 
             SectionHeader {
+                text: qsTr("Zigbee (MQTT)")
+            }
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * x
+                visible: !hue.mqttConfigured
+                wrapMode: Text.Wrap
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryHighlightColor
+                text: qsTr("Lights and sensors from zigbee2mqtt, through an MQTT broker")
+            }
+            DetailItem {
+                label: qsTr("Broker")
+                visible: hue.mqttConfigured
+                value: hue.mqttHost + ":" + hue.mqttPort
+            }
+            DetailItem {
+                label: qsTr("Status")
+                visible: hue.mqttConfigured
+                value: {
+                    switch (hue.mqttState) {
+                    case HueClient.MqttConnected: return qsTr("Connected")
+                    case HueClient.MqttConnecting: return qsTr("Connecting")
+                    case HueClient.MqttReconnecting: return qsTr("Waiting to reconnect")
+                    case HueClient.MqttRefused: return qsTr("Refused")
+                    default: return ""
+                    }
+                }
+            }
+            Label {
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * x
+                visible: hue.mqttError !== "" && hue.mqttState !== HueClient.MqttConnected
+                wrapMode: Text.Wrap
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.errorColor
+                text: hue.mqttError
+            }
+            Item {
+                width: 1
+                height: Theme.paddingLarge
+            }
+            ButtonLayout {
+                width: parent.width
+                Button {
+                    text: hue.mqttConfigured ? qsTr("Change") : qsTr("Set up")
+                    onClicked: pageStack.push(Qt.resolvedUrl("MqttDialog.qml"))
+                }
+                Button {
+                    visible: hue.mqttConfigured
+                    text: qsTr("Remove")
+                    onClicked: remorse.execute(qsTr("Removing broker"), function() { hue.forgetMqtt() })
+                }
+            }
+            Item {
+                width: 1
+                height: Theme.paddingLarge
+            }
+
+            SectionHeader {
                 text: qsTr("Bridge")
             }
             DetailItem {

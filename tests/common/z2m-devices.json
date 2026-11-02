@@ -1,0 +1,629 @@
+[
+ {
+  "ieee_address": "0x0000000000000000",
+  "friendly_name": "Coordinator",
+  "type": "Coordinator",
+  "supported": true,
+  "disabled": false
+ },
+ {
+  "ieee_address": "0x0000000000000001",
+  "friendly_name": "strip",
+  "type": "Router",
+  "supported": true,
+  "disabled": false,
+  "definition": {
+   "model": "YSR-MINI-01_dimmer",
+   "vendor": "YSRSAI",
+   "description": "Zigbee LED controller (Dimmer)",
+   "exposes": [
+    {
+     "features": [
+      {
+       "access": 7,
+       "description": "On/off state of this light",
+       "label": "State",
+       "name": "state",
+       "property": "state",
+       "type": "binary",
+       "value_off": "OFF",
+       "value_on": "ON",
+       "value_toggle": "TOGGLE"
+      },
+      {
+       "access": 7,
+       "description": "Brightness of this light",
+       "label": "Brightness",
+       "name": "brightness",
+       "property": "brightness",
+       "type": "numeric",
+       "value_max": 254,
+       "value_min": 0
+      }
+     ],
+     "type": "light"
+    },
+    {
+     "access": 2,
+     "description": "Triggers an effect on the light (e.g. make light blink for a few seconds)",
+     "label": "Effect",
+     "name": "effect",
+     "property": "effect",
+     "type": "enum",
+     "values": [
+      "blink",
+      "breathe",
+      "okay",
+      "channel_change",
+      "finish_effect",
+      "stop_effect"
+     ]
+    },
+    {
+     "access": 3,
+     "description": "Do not disturb mode, when enabled this function will keep the light OFF after a power outage",
+     "label": "Do not disturb",
+     "name": "do_not_disturb",
+     "property": "do_not_disturb",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Link quality (signal strength)",
+     "label": "Linkquality",
+     "name": "linkquality",
+     "property": "linkquality",
+     "type": "numeric",
+     "unit": "lqi",
+     "value_max": 255,
+     "value_min": 0
+    }
+   ]
+  }
+ },
+ {
+  "ieee_address": "0x0000000000000002",
+  "friendly_name": "hall",
+  "type": "Router",
+  "supported": true,
+  "disabled": false,
+  "definition": {
+   "model": "WS-EUK04",
+   "vendor": "Aqara",
+   "description": "Smart wall switch H1 EU (with neutral, double rocker)",
+   "exposes": [
+    {
+     "endpoint": "left",
+     "features": [
+      {
+       "access": 7,
+       "description": "On/off state of the switch",
+       "endpoint": "left",
+       "label": "State",
+       "name": "state",
+       "property": "state_left",
+       "type": "binary",
+       "value_off": "OFF",
+       "value_on": "ON",
+       "value_toggle": "TOGGLE"
+      }
+     ],
+     "type": "switch"
+    },
+    {
+     "endpoint": "right",
+     "features": [
+      {
+       "access": 7,
+       "description": "On/off state of the switch",
+       "endpoint": "right",
+       "label": "State",
+       "name": "state",
+       "property": "state_right",
+       "type": "binary",
+       "value_off": "OFF",
+       "value_on": "ON",
+       "value_toggle": "TOGGLE"
+      }
+     ],
+     "type": "switch"
+    },
+    {
+     "access": 5,
+     "category": "diagnostic",
+     "description": "Instantaneous measured power",
+     "label": "Power",
+     "name": "power",
+     "property": "power",
+     "type": "numeric",
+     "unit": "W"
+    },
+    {
+     "access": 1,
+     "description": "Sum of consumed energy",
+     "label": "Energy",
+     "name": "energy",
+     "property": "energy",
+     "type": "numeric",
+     "unit": "kWh"
+    },
+    {
+     "access": 7,
+     "description": "Decoupled mode for left button",
+     "endpoint": "left",
+     "label": "Operation mode",
+     "name": "operation_mode",
+     "property": "operation_mode_left",
+     "type": "enum",
+     "values": [
+      "control_relay",
+      "decoupled"
+     ]
+    },
+    {
+     "access": 7,
+     "description": "Decoupled mode for right button",
+     "endpoint": "right",
+     "label": "Operation mode",
+     "name": "operation_mode",
+     "property": "operation_mode_right",
+     "type": "enum",
+     "values": [
+      "control_relay",
+      "decoupled"
+     ]
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Temperature of the device",
+     "label": "Device temperature",
+     "name": "device_temperature",
+     "property": "device_temperature",
+     "type": "numeric",
+     "unit": "\u00b0C"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Enable/disable the power outage memory, this recovers the on/off mode after power failure",
+     "label": "Power outage memory",
+     "name": "power_outage_memory",
+     "property": "power_outage_memory",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "After turn on, the indicator light turns on while switch is off, and vice versa",
+     "label": "Flip indicator light",
+     "name": "flip_indicator_light",
+     "property": "flip_indicator_light",
+     "type": "binary",
+     "value_off": "OFF",
+     "value_on": "ON"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Enable/disable the LED at night",
+     "label": "LED disabled night",
+     "name": "led_disabled_night",
+     "property": "led_disabled_night",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Number of power outages (since last pairing)",
+     "label": "Power outage count",
+     "name": "power_outage_count",
+     "property": "power_outage_count",
+     "type": "numeric"
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Triggered action (e.g. a button click)",
+     "label": "Action",
+     "name": "action",
+     "property": "action",
+     "type": "enum",
+     "values": [
+      "single_left",
+      "double_left",
+      "single_right",
+      "double_right",
+      "single_both",
+      "double_both"
+     ]
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Link quality (signal strength)",
+     "label": "Linkquality",
+     "name": "linkquality",
+     "property": "linkquality",
+     "type": "numeric",
+     "unit": "lqi",
+     "value_max": 255,
+     "value_min": 0
+    }
+   ]
+  }
+ },
+ {
+  "ieee_address": "0x0000000000000003",
+  "friendly_name": "office",
+  "type": "EndDevice",
+  "supported": true,
+  "disabled": false,
+  "definition": {
+   "model": "WS-EUK01",
+   "vendor": "Aqara",
+   "description": "Smart wall switch H1 EU (no neutral, single rocker)",
+   "exposes": [
+    {
+     "features": [
+      {
+       "access": 7,
+       "description": "On/off state of the switch",
+       "label": "State",
+       "name": "state",
+       "property": "state",
+       "type": "binary",
+       "value_off": "OFF",
+       "value_on": "ON",
+       "value_toggle": "TOGGLE"
+      }
+     ],
+     "type": "switch"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Enable/disable the power outage memory, this recovers the on/off mode after power failure",
+     "label": "Power outage memory",
+     "name": "power_outage_memory",
+     "property": "power_outage_memory",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "After turn on, the indicator light turns on while switch is off, and vice versa",
+     "label": "Flip indicator light",
+     "name": "flip_indicator_light",
+     "property": "flip_indicator_light",
+     "type": "binary",
+     "value_off": "OFF",
+     "value_on": "ON"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Enable/disable the LED at night",
+     "label": "LED disabled night",
+     "name": "led_disabled_night",
+     "property": "led_disabled_night",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Number of power outages (since last pairing)",
+     "label": "Power outage count",
+     "name": "power_outage_count",
+     "property": "power_outage_count",
+     "type": "numeric"
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Temperature of the device",
+     "label": "Device temperature",
+     "name": "device_temperature",
+     "property": "device_temperature",
+     "type": "numeric",
+     "unit": "\u00b0C"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Switches between direct relay control and action sending only",
+     "label": "Operation mode",
+     "name": "operation_mode",
+     "property": "operation_mode",
+     "type": "enum",
+     "values": [
+      "control_relay",
+      "decoupled"
+     ]
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Features. Anti flicker mode can be used to solve blinking issues of some lights.Quick mode makes the device respond faster.",
+     "label": "Mode switch",
+     "name": "mode_switch",
+     "property": "mode_switch",
+     "type": "enum",
+     "values": [
+      "anti_flicker_mode",
+      "quick_mode"
+     ]
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Triggered action (e.g. a button click)",
+     "label": "Action",
+     "name": "action",
+     "property": "action",
+     "type": "enum",
+     "values": [
+      "single",
+      "double"
+     ]
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Link quality (signal strength)",
+     "label": "Linkquality",
+     "name": "linkquality",
+     "property": "linkquality",
+     "type": "numeric",
+     "unit": "lqi",
+     "value_max": 255,
+     "value_min": 0
+    }
+   ]
+  }
+ },
+ {
+  "ieee_address": "0x0000000000000004",
+  "friendly_name": "hall_motion",
+  "type": "EndDevice",
+  "supported": true,
+  "disabled": false,
+  "definition": {
+   "model": "9290012607",
+   "vendor": "Philips",
+   "description": "Hue motion sensor",
+   "exposes": [
+    {
+     "access": 1,
+     "description": "Measured temperature value",
+     "label": "Temperature",
+     "name": "temperature",
+     "property": "temperature",
+     "type": "numeric",
+     "unit": "\u00b0C"
+    },
+    {
+     "access": 1,
+     "description": "Indicates whether the device detected occupancy",
+     "label": "Occupancy",
+     "name": "occupancy",
+     "property": "occupancy",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Remaining battery in %, can take up to 24 hours before reported",
+     "label": "Battery",
+     "name": "battery",
+     "property": "battery",
+     "type": "numeric",
+     "unit": "%",
+     "value_max": 100,
+     "value_min": 0
+    },
+    {
+     "access": 1,
+     "description": "Measured illuminance",
+     "label": "Illuminance",
+     "name": "illuminance",
+     "property": "illuminance",
+     "type": "numeric",
+     "unit": "lx"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Select motion sensitivity to use",
+     "label": "Motion sensitivity",
+     "name": "motion_sensitivity",
+     "property": "motion_sensitivity",
+     "type": "enum",
+     "values": [
+      "low",
+      "medium",
+      "high"
+     ]
+    },
+    {
+     "access": 7,
+     "description": "Blink green LED on motion detection",
+     "label": "Led indication",
+     "name": "led_indication",
+     "property": "led_indication",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 7,
+     "label": "Occupancy timeout",
+     "name": "occupancy_timeout",
+     "property": "occupancy_timeout",
+     "type": "numeric",
+     "unit": "s",
+     "value_max": 65535,
+     "value_min": 0
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Link quality (signal strength)",
+     "label": "Linkquality",
+     "name": "linkquality",
+     "property": "linkquality",
+     "type": "numeric",
+     "unit": "lqi",
+     "value_max": 255,
+     "value_min": 0
+    }
+   ]
+  }
+ },
+ {
+  "ieee_address": "0x0000000000000005",
+  "friendly_name": "bedroom",
+  "type": "EndDevice",
+  "supported": true,
+  "disabled": false,
+  "definition": {
+   "model": "WS-EUK01",
+   "vendor": "Aqara",
+   "description": "Smart wall switch H1 EU (no neutral, single rocker)",
+   "exposes": [
+    {
+     "features": [
+      {
+       "access": 7,
+       "description": "On/off state of the switch",
+       "label": "State",
+       "name": "state",
+       "property": "state",
+       "type": "binary",
+       "value_off": "OFF",
+       "value_on": "ON",
+       "value_toggle": "TOGGLE"
+      }
+     ],
+     "type": "switch"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Enable/disable the power outage memory, this recovers the on/off mode after power failure",
+     "label": "Power outage memory",
+     "name": "power_outage_memory",
+     "property": "power_outage_memory",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "After turn on, the indicator light turns on while switch is off, and vice versa",
+     "label": "Flip indicator light",
+     "name": "flip_indicator_light",
+     "property": "flip_indicator_light",
+     "type": "binary",
+     "value_off": "OFF",
+     "value_on": "ON"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Enable/disable the LED at night",
+     "label": "LED disabled night",
+     "name": "led_disabled_night",
+     "property": "led_disabled_night",
+     "type": "binary",
+     "value_off": false,
+     "value_on": true
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Number of power outages (since last pairing)",
+     "label": "Power outage count",
+     "name": "power_outage_count",
+     "property": "power_outage_count",
+     "type": "numeric"
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Temperature of the device",
+     "label": "Device temperature",
+     "name": "device_temperature",
+     "property": "device_temperature",
+     "type": "numeric",
+     "unit": "\u00b0C"
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Switches between direct relay control and action sending only",
+     "label": "Operation mode",
+     "name": "operation_mode",
+     "property": "operation_mode",
+     "type": "enum",
+     "values": [
+      "control_relay",
+      "decoupled"
+     ]
+    },
+    {
+     "access": 7,
+     "category": "config",
+     "description": "Features. Anti flicker mode can be used to solve blinking issues of some lights.Quick mode makes the device respond faster.",
+     "label": "Mode switch",
+     "name": "mode_switch",
+     "property": "mode_switch",
+     "type": "enum",
+     "values": [
+      "anti_flicker_mode",
+      "quick_mode"
+     ]
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Triggered action (e.g. a button click)",
+     "label": "Action",
+     "name": "action",
+     "property": "action",
+     "type": "enum",
+     "values": [
+      "single",
+      "double"
+     ]
+    },
+    {
+     "access": 1,
+     "category": "diagnostic",
+     "description": "Link quality (signal strength)",
+     "label": "Linkquality",
+     "name": "linkquality",
+     "property": "linkquality",
+     "type": "numeric",
+     "unit": "lqi",
+     "value_max": 255,
+     "value_min": 0
+    }
+   ]
+  }
+ }
+]

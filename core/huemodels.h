@@ -20,7 +20,8 @@ public:
         GroupedLightIdRole,
         OnRole,
         BrightnessRole,     // 0-100
-        LightCountRole
+        LightCountRole,
+        DimmableRole        // whether any of its lights dims
     };
 
     explicit HueRoomModel(QObject *parent = nullptr);
@@ -50,6 +51,8 @@ class HueLightModel : public HueListModel
     Q_PROPERTY(QString groupId READ groupId WRITE setGroupId NOTIFY groupIdChanged)
     Q_PROPERTY(QString lightId READ lightId WRITE setLightId NOTIFY lightIdChanged)
     Q_PROPERTY(bool groupFixtures READ groupFixtures WRITE setGroupFixtures NOTIFY groupFixturesChanged)
+    // Only lights in no room, e.g. new Zigbee ones.
+    Q_PROPERTY(bool withoutRoom READ withoutRoom WRITE setWithoutRoom NOTIFY withoutRoomChanged)
 public:
     enum Roles {
         IdRole = Qt::UserRole + 1,
@@ -77,6 +80,8 @@ public:
     void setLightId(const QString &lightId);
     bool groupFixtures() const { return m_groupFixtures; }
     void setGroupFixtures(bool groupFixtures);
+    bool withoutRoom() const { return m_withoutRoom; }
+    void setWithoutRoom(bool withoutRoom);
 
     // Shared with HueClient: the colour a light shows right now.
     static QColor displayColor(const QJsonObject &light);
@@ -85,6 +90,7 @@ signals:
     void groupIdChanged();
     void lightIdChanged();
     void groupFixturesChanged();
+    void withoutRoomChanged();
 
 protected:
     QStringList collectIds() const override;
@@ -97,6 +103,7 @@ private:
     QString m_groupId;
     QString m_lightId;
     bool m_groupFixtures = true;
+    bool m_withoutRoom = false;
 };
 
 // Scenes of one room or zone.
@@ -167,6 +174,52 @@ protected:
 private:
     QJsonObject service(const QString &deviceId, const QString &rtype) const;
     QJsonObject lastButton(const QString &deviceId) const;
+};
+
+// The bridge's automations (behavior_instance resources made from an "automation" script; not
+// the ones behind switches): wake up, go to sleep, timers, lights on at a time, ... What a
+// schedule's configuration holds depends on its script; the roles give what can be read from
+// the common shapes, and stay empty (or -1) otherwise.
+class HueScheduleModel : public HueListModel
+{
+    Q_OBJECT
+public:
+    enum Roles {
+        IdRole = Qt::UserRole + 1,
+        NameRole,
+        KindRole,           // "wake_up", "go_to_sleep", "timer", "time_based_light", "natural_light",
+                            // "coming_home", "leaving_home"; empty for other scripts
+        ScriptNameRole,     // the script's name, as the bridge has it (in English)
+        EnabledRole,
+        ErrorRole,          // what went wrong, if the bridge says it did
+        TimeTypeRole,       // "time", "sunrise", "sunset" or empty
+        HourRole,           // when it starts, if TimeTypeRole is "time"; -1 otherwise
+        MinuteRole,
+        OffsetRole,         // minutes before (< 0) or after sunrise or sunset
+        EndHourRole,        // when it ends, for those with an end time; -1 otherwise
+        EndMinuteRole,
+        DaysRole,           // "monday" ... "sunday"; empty: once
+        DurationRole,       // a timer's, in seconds; -1 if none
+        PlacesRole,         // names of the rooms and zones it's for
+        EditableRole        // whether its time and days can be changed (setScheduleTime)
+    };
+
+    explicit HueScheduleModel(QObject *parent = nullptr);
+    QHash<int, QByteArray> roleNames() const override;
+
+    // Where a configuration says when: "when" (wake up, go to sleep) or "when_extended" (with an
+    // end), and the start's time_point in it ({type: time, time: {hour, minute}}, or sunrise...).
+    static QString whenKey(const QJsonObject &configuration);
+    static QStringList startPath(const QString &whenKey);
+    static const QStringList &weekDays();
+
+protected:
+    QStringList collectIds() const override;
+    QStringList dependenciesOf(const QString &id) const override;
+    QVariant dataFor(const QString &id, int role) const override;
+
+private:
+    QStringList groupsOf(const QJsonObject &instance) const;
 };
 
 #endif // HUEMODELS_H

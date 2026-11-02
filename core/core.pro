@@ -18,7 +18,10 @@ HEADERS += \
     huepairing.h \
     hueresourcestore.h \
     huessestream.h \
-    huetls.h
+    huetls.h \
+    localgroups.h \
+    mqttclient.h \
+    zigbee2mqtt.h
 
 SOURCES += \
     huebridge.cpp \
@@ -33,4 +36,7 @@ SOURCES += \
     huepairing.cpp \
     hueresourcestore.cpp \
     huessestream.cpp \
-    huetls.cpp
+    huetls.cpp \
+    localgroups.cpp \
+    mqttclient.cpp \
+    zigbee2mqtt.cpp

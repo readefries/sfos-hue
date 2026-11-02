@@ -127,6 +127,14 @@
     </message>
 </context>
 <context>
+    <name>HueScheduleModel</name>
+    <message>
+        <location filename="../../core/huemodels.cpp" line="721"/>
+        <source>Whole home</source>
+        <translation>Hele huis</translation>
+    </message>
+</context>
+<context>
     <name>KindComboBox</name>
     <message>
         <location filename="../qml/components/KindComboBox.qml" line="15"/>
@@ -153,49 +161,157 @@
 <context>
     <name>LightPage</name>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="35"/>
+        <location filename="../qml/pages/LightPage.qml" line="37"/>
+        <source>Room</source>
+        <translation>Ruimte</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/LightPage.qml" line="45"/>
         <source>Rename</source>
         <translation>Naam wijzigen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="38"/>
+        <location filename="../qml/pages/LightPage.qml" line="49"/>
         <source>Rename light</source>
         <translation>Lamp hernoemen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="72"/>
+        <location filename="../qml/pages/LightPage.qml" line="83"/>
         <source>The bridge can&apos;t reach this light. Is it switched on at the wall?</source>
         <translation>De bridge kan deze lamp niet bereiken. Staat de schakelaar aan de muur aan?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="76"/>
+        <location filename="../qml/pages/LightPage.qml" line="87"/>
         <source>On</source>
         <translation>Aan</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="83"/>
+        <location filename="../qml/pages/LightPage.qml" line="94"/>
         <source>Brightness</source>
         <translation>Helderheid</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="94"/>
+        <location filename="../qml/pages/LightPage.qml" line="105"/>
         <source>White</source>
         <translation>Wit</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="100"/>
+        <location filename="../qml/pages/LightPage.qml" line="111"/>
         <source>Colour temperature</source>
         <translation>Kleurtemperatuur</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="127"/>
+        <location filename="../qml/pages/LightPage.qml" line="138"/>
         <source>Colour</source>
         <translation>Kleur</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LightPage.qml" line="143"/>
+        <location filename="../qml/pages/LightPage.qml" line="154"/>
         <source>Spots</source>
         <translation>Spots</translation>
+    </message>
+</context>
+<context>
+    <name>MqttClient</name>
+    <message>
+        <location filename="../../core/mqttclient.cpp" line="166"/>
+        <source>The MQTT broker did not respond</source>
+        <translation>De MQTT-broker reageert niet</translation>
+    </message>
+    <message>
+        <location filename="../../core/mqttclient.cpp" line="171"/>
+        <source>Lost the connection to the MQTT broker</source>
+        <translation>Verbinding met de MQTT-broker verloren</translation>
+    </message>
+    <message>
+        <location filename="../../core/mqttclient.cpp" line="267"/>
+        <source>The MQTT broker closed the connection</source>
+        <translation>De MQTT-broker heeft de verbinding verbroken</translation>
+    </message>
+    <message>
+        <location filename="../../core/mqttclient.cpp" line="289"/>
+        <source>The MQTT broker sent something unexpected</source>
+        <translation>Onverwacht antwoord van de MQTT-broker</translation>
+    </message>
+    <message>
+        <location filename="../../core/mqttclient.cpp" line="308"/>
+        <source>The MQTT broker did not accept the user name or password</source>
+        <translation>De MQTT-broker accepteert de gebruikersnaam of het wachtwoord niet</translation>
+    </message>
+    <message>
+        <location filename="../../core/mqttclient.cpp" line="309"/>
+        <source>The MQTT broker did not allow this user to connect</source>
+        <translation>De MQTT-broker laat deze gebruiker niet verbinden</translation>
+    </message>
+    <message>
+        <location filename="../../core/mqttclient.cpp" line="313"/>
+        <source>The MQTT broker refused the connection (%1)</source>
+        <translation>De MQTT-broker weigert de verbinding (%1)</translation>
+    </message>
+    <message>
+        <location filename="../../core/mqttclient.cpp" line="336"/>
+        <source>The MQTT broker did not allow this user to subscribe</source>
+        <translation>De MQTT-broker laat deze gebruiker niet abonneren</translation>
+    </message>
+</context>
+<context>
+    <name>MqttDialog</name>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="22"/>
+        <source>MQTT broker</source>
+        <translation>MQTT-broker</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="23"/>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="29"/>
+        <source>Address</source>
+        <translation>Adres</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="30"/>
+        <source>Address, e.g. 192.168.1.10</source>
+        <translation>Adres, bijv. 192.168.1.10</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="40"/>
+        <location filename="../qml/pages/MqttDialog.qml" line="41"/>
+        <source>Port</source>
+        <translation>Poort</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="51"/>
+        <source>User name</source>
+        <translation>Gebruikersnaam</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="52"/>
+        <source>User name (if the broker wants one)</source>
+        <translation>Gebruikersnaam (als de broker er een vraagt)</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="63"/>
+        <source>Password (unchanged)</source>
+        <translation>Wachtwoord (ongewijzigd)</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="63"/>
+        <source>Password</source>
+        <translation>Wachtwoord</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="70"/>
+        <location filename="../qml/pages/MqttDialog.qml" line="71"/>
+        <source>Base topic</source>
+        <translation>Basistopic</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MqttDialog.qml" line="84"/>
+        <source>The base topic is zigbee2mqtt&apos;s mqtt.base_topic setting; usually zigbee2mqtt. The password is sent unencrypted, so only use this on your own network.</source>
+        <translation>Het basistopic is de instelling mqtt.base_topic van zigbee2mqtt; meestal zigbee2mqtt. Het wachtwoord gaat onversleuteld over het netwerk, dus gebruik dit alleen op je eigen netwerk.</translation>
     </message>
 </context>
 <context>
@@ -214,45 +330,84 @@
 <context>
     <name>RoomPage</name>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="33"/>
-        <location filename="../qml/pages/RoomPage.qml" line="37"/>
+        <location filename="../qml/pages/RoomPage.qml" line="39"/>
+        <source>Delete zone</source>
+        <translation>Zone verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPage.qml" line="39"/>
+        <source>Delete room</source>
+        <translation>Ruimte verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPage.qml" line="41"/>
+        <source>Deleting zone</source>
+        <translation>Zone verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPage.qml" line="41"/>
+        <source>Deleting room</source>
+        <translation>Ruimte verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPage.qml" line="48"/>
+        <location filename="../qml/pages/RoomPage.qml" line="52"/>
         <source>Edit room</source>
         <translation>Ruimte bewerken</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="48"/>
+        <location filename="../qml/pages/RoomPage.qml" line="63"/>
         <source>Edit zone</source>
         <translation>Zone bewerken</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="57"/>
+        <location filename="../qml/pages/RoomPage.qml" line="72"/>
         <source>New scene from current lights</source>
         <translation>Nieuwe scène van de lampen nu</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="93"/>
+        <location filename="../qml/pages/RoomPage.qml" line="109"/>
         <source>On</source>
         <translation>Aan</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="100"/>
+        <location filename="../qml/pages/RoomPage.qml" line="116"/>
         <source>Brightness</source>
         <translation>Helderheid</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="113"/>
+        <location filename="../qml/pages/RoomPage.qml" line="129"/>
         <source>Scenes</source>
         <translation>Scènes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="124"/>
+        <location filename="../qml/pages/RoomPage.qml" line="140"/>
         <source>Tap to switch to a scene; press and hold to change it</source>
         <translation>Tik om een scène te kiezen; houd vast om hem aan te passen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomPage.qml" line="179"/>
+        <location filename="../qml/pages/RoomPage.qml" line="195"/>
         <source>Lights</source>
         <translation>Lampen</translation>
+    </message>
+</context>
+<context>
+    <name>RoomPickerPage</name>
+    <message>
+        <location filename="../qml/pages/RoomPickerPage.qml" line="30"/>
+        <location filename="../qml/pages/RoomPickerPage.qml" line="33"/>
+        <source>New room</source>
+        <translation>Nieuwe ruimte</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPickerPage.qml" line="54"/>
+        <source>Room</source>
+        <translation>Ruimte</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomPickerPage.qml" line="59"/>
+        <source>No room</source>
+        <translation>Geen ruimte</translation>
     </message>
 </context>
 <context>
@@ -269,46 +424,62 @@
     </message>
     <message>
         <location filename="../qml/pages/RoomsPage.qml" line="29"/>
+        <source>Schedules</source>
+        <translation>Schema&apos;s</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomsPage.qml" line="33"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="36"/>
+        <source>New room</source>
+        <translation>Nieuwe ruimte</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomsPage.qml" line="46"/>
         <source>New zone</source>
         <translation>Nieuwe zone</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="34"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="51"/>
         <source>All lights off</source>
         <translation>Alle lampen uit</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="44"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="61"/>
         <source>Connecting…</source>
         <translation>Verbinden…</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="45"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="62"/>
         <source>Reconnecting…</source>
         <translation>Opnieuw verbinden…</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="56"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="73"/>
         <source>Zones</source>
         <translation>Zones</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="56"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="73"/>
         <source>Rooms</source>
         <translation>Ruimtes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="64"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="85"/>
+        <source>Not in a room</source>
+        <translation>Niet in een ruimte</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomsPage.qml" line="101"/>
         <source>No rooms yet</source>
         <translation>Nog geen ruimtes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="65"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="102"/>
         <source>Rooms and zones are set up in the Hue app</source>
         <translation>Ruimtes en zones stel je in met de Hue-app</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="71"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="108"/>
         <source>Pull down for settings</source>
         <translation>Trek omlaag voor instellingen</translation>
     </message>
@@ -355,6 +526,67 @@
         <location filename="../qml/pages/SceneDialog.qml" line="85"/>
         <source>The scene remembers the lights in %1 as they are now: which are on, how bright, and their colour.</source>
         <translation>De scène onthoudt hoe de lampen in %1 nu staan: welke aan zijn, hoe fel en in welke kleur.</translation>
+    </message>
+</context>
+<context>
+    <name>ScheduleDialog</name>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="51"/>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="53"/>
+        <source>Deleting schedule</source>
+        <translation>Schema verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="66"/>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="84"/>
+        <source>Time</source>
+        <translation>Tijd</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="100"/>
+        <source>Days</source>
+        <translation>Dagen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="120"/>
+        <source>Without days, it runs once.</source>
+        <translation>Zonder dagen gaat hij één keer af.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="129"/>
+        <source>This schedule doesn&apos;t start at a fixed time; change it in the Hue app.</source>
+        <translation>Dit schema begint niet op een vaste tijd; pas het aan in de Hue-app.</translation>
+    </message>
+</context>
+<context>
+    <name>SchedulesPage</name>
+    <message>
+        <location filename="../qml/pages/SchedulesPage.qml" line="26"/>
+        <source>Schedules</source>
+        <translation>Schema&apos;s</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SchedulesPage.qml" line="88"/>
+        <source>Not working: %1</source>
+        <translation>Werkt niet: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SchedulesPage.qml" line="108"/>
+        <source>No schedules</source>
+        <translation>Geen schema&apos;s</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SchedulesPage.qml" line="109"/>
+        <source>Wake up, go to sleep and other automations are set up in the Hue app</source>
+        <translation>Wakker worden, gaan slapen en andere automatiseringen stel je in met de Hue-app</translation>
     </message>
 </context>
 <context>
@@ -457,7 +689,7 @@
         <translation>Batterij %1 %</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SensorsPage.qml" line="163"/>
+        <location filename="../qml/pages/SensorsPage.qml" line="164"/>
         <source>No sensors or switches</source>
         <translation>Geen sensoren of schakelaars</translation>
     </message>
@@ -490,67 +722,111 @@
         <translation>Rechterknop</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="48"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="108"/>
         <source>Bridge</source>
         <translation>Bridge</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="51"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="111"/>
         <source>Name</source>
         <translation>Naam</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="55"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="115"/>
         <source>Address</source>
         <translation>Adres</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="59"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="65"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="119"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="62"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="48"/>
+        <source>Zigbee (MQTT)</source>
+        <translation>Zigbee (MQTT)</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="57"/>
+        <source>Lights and sensors from zigbee2mqtt, through an MQTT broker</source>
+        <translation>Lampen en sensoren van zigbee2mqtt, via een MQTT-broker</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="60"/>
+        <source>Broker</source>
+        <translation>Broker</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="69"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="122"/>
         <source>Connected</source>
         <translation>Verbonden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="63"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="70"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="123"/>
         <source>Connecting</source>
         <translation>Verbinden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="64"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="71"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="124"/>
         <source>Waiting to reconnect</source>
         <translation>Wacht om opnieuw te verbinden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="65"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="72"/>
+        <source>Refused</source>
+        <translation>Geweigerd</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="93"/>
+        <source>Change</source>
+        <translation>Wijzigen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="93"/>
+        <source>Set up</source>
+        <translation>Instellen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="98"/>
+        <source>Remove</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="99"/>
+        <source>Removing broker</source>
+        <translation>Broker verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="125"/>
         <source>Not paired</source>
         <translation>Niet gekoppeld</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="66"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="126"/>
         <source>Certificate changed</source>
         <translation>Certificaat veranderd</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="89"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="149"/>
         <source>Reconnect</source>
         <translation>Opnieuw verbinden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="93"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="153"/>
         <source>Forget bridge</source>
         <translation>Bridge vergeten</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="94"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="154"/>
         <source>Forgetting bridge</source>
         <translation>Bridge vergeten</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="109"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="169"/>
         <source>Forgetting only removes the bridge from this phone. To revoke the app&apos;s access, remove &quot;lampje#sailfishos&quot; in the Hue app.</source>
         <translation>Vergeten verwijdert de bridge alleen van deze telefoon. Verwijder &quot;lampje#sailfishos&quot; in de Hue-app om de app de toegang te ontnemen.</translation>
     </message>
@@ -729,6 +1005,124 @@
         <location filename="../qml/components/coveractions.js" line="9"/>
         <source>Nothing</source>
         <translation>Niets</translation>
+    </message>
+</context>
+<context>
+    <name>schedules</name>
+    <message>
+        <location filename="../qml/components/schedules.js" line="20"/>
+        <source>Wake up</source>
+        <translation>Wakker worden</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="21"/>
+        <source>Go to sleep</source>
+        <translation>Gaan slapen</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="22"/>
+        <source>Timer</source>
+        <translation>Timer</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="23"/>
+        <source>Lights on a schedule</source>
+        <translation>Lampen volgens schema</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="24"/>
+        <source>Natural light</source>
+        <translation>Natuurlijk licht</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="25"/>
+        <source>Coming home</source>
+        <translation>Thuiskomen</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="26"/>
+        <source>Leaving home</source>
+        <translation>Weggaan</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="33"/>
+        <source>Once</source>
+        <translation>Eenmalig</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="35"/>
+        <source>Every day</source>
+        <translation>Elke dag</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="38"/>
+        <source>Weekdays</source>
+        <translation>Doordeweeks</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="40"/>
+        <source>Weekends</source>
+        <translation>In het weekend</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="58"/>
+        <source>Sunrise</source>
+        <translation>Zonsopkomst</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="60"/>
+        <source>Sunset</source>
+        <translation>Zonsondergang</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="64"/>
+        <source>%1 + %n min</source>
+        <translation>
+            <numerusform>%1 + %n min</numerusform>
+            <numerusform>%1 + %n min</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="66"/>
+        <source>%1 − %n min</source>
+        <translation>
+            <numerusform>%1 − %n min</numerusform>
+            <numerusform>%1 − %n min</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="74"/>
+        <source>%n s</source>
+        <translation>
+            <numerusform>%n s</numerusform>
+            <numerusform>%n s</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="77"/>
+        <source>%n min</source>
+        <translation>
+            <numerusform>%n min</numerusform>
+            <numerusform>%n min</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="80"/>
+        <source>%n h</source>
+        <translation>
+            <numerusform>%n u</numerusform>
+            <numerusform>%n u</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="80"/>
+        <source>%1 h %2 min</source>
+        <translation>%1 u %2 min</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="89"/>
+        <source>%1 to %2</source>
+        <translation>%1 tot %2</translation>
     </message>
 </context>
 </TS>
