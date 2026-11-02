@@ -99,6 +99,16 @@ class Bridge:
                         if scene["status"]["active"] != active:
                             scene["status"]["active"] = active
                             changes.append({"id": scene["id"], "type": "scene", "status": {"active": active}})
+            elif rtype == "behavior_instance" and ("enabled" in body or "configuration" in body):
+                change = {"id": rid, "type": rtype}
+                if "configuration" in body:
+                    res["configuration"] = body["configuration"]
+                    change["configuration"] = res["configuration"]
+                if "enabled" in body:
+                    res["enabled"] = body["enabled"]
+                    res["status"] = "running" if body["enabled"] else "disabled"
+                    change.update(enabled=res["enabled"], status=res["status"])
+                changes.append(change)
             elif "enabled" in body:
                 res["enabled"] = body["enabled"]
                 changes.append({"id": rid, "type": rtype, "enabled": body["enabled"]})

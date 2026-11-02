@@ -127,6 +127,14 @@
     </message>
 </context>
 <context>
+    <name>HueScheduleModel</name>
+    <message>
+        <location filename="../../core/huemodels.cpp" line="721"/>
+        <source>Whole home</source>
+        <translation>Hele huis</translation>
+    </message>
+</context>
+<context>
     <name>KindComboBox</name>
     <message>
         <location filename="../qml/components/KindComboBox.qml" line="15"/>
@@ -416,57 +424,62 @@
     </message>
     <message>
         <location filename="../qml/pages/RoomsPage.qml" line="29"/>
-        <location filename="../qml/pages/RoomsPage.qml" line="32"/>
+        <source>Schedules</source>
+        <translation>Schema&apos;s</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/RoomsPage.qml" line="33"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="36"/>
         <source>New room</source>
         <translation>Nieuwe ruimte</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="42"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="46"/>
         <source>New zone</source>
         <translation>Nieuwe zone</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="47"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="51"/>
         <source>All lights off</source>
         <translation>Alle lampen uit</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="57"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="61"/>
         <source>Connecting…</source>
         <translation>Verbinden…</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="58"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="62"/>
         <source>Reconnecting…</source>
         <translation>Opnieuw verbinden…</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="69"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="73"/>
         <source>Zones</source>
         <translation>Zones</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="69"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="73"/>
         <source>Rooms</source>
         <translation>Ruimtes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="81"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="85"/>
         <source>Not in a room</source>
         <translation>Niet in een ruimte</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="97"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="101"/>
         <source>No rooms yet</source>
         <translation>Nog geen ruimtes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="98"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="102"/>
         <source>Rooms and zones are set up in the Hue app</source>
         <translation>Ruimtes en zones stel je in met de Hue-app</translation>
     </message>
     <message>
-        <location filename="../qml/pages/RoomsPage.qml" line="104"/>
+        <location filename="../qml/pages/RoomsPage.qml" line="108"/>
         <source>Pull down for settings</source>
         <translation>Trek omlaag voor instellingen</translation>
     </message>
@@ -513,6 +526,67 @@
         <location filename="../qml/pages/SceneDialog.qml" line="85"/>
         <source>The scene remembers the lights in %1 as they are now: which are on, how bright, and their colour.</source>
         <translation>De scène onthoudt hoe de lampen in %1 nu staan: welke aan zijn, hoe fel en in welke kleur.</translation>
+    </message>
+</context>
+<context>
+    <name>ScheduleDialog</name>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="51"/>
+        <source>Delete</source>
+        <translation>Verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="53"/>
+        <source>Deleting schedule</source>
+        <translation>Schema verwijderen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="66"/>
+        <source>Save</source>
+        <translation>Opslaan</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="84"/>
+        <source>Time</source>
+        <translation>Tijd</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="100"/>
+        <source>Days</source>
+        <translation>Dagen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="120"/>
+        <source>Without days, it runs once.</source>
+        <translation>Zonder dagen gaat hij één keer af.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ScheduleDialog.qml" line="129"/>
+        <source>This schedule doesn&apos;t start at a fixed time; change it in the Hue app.</source>
+        <translation>Dit schema begint niet op een vaste tijd; pas het aan in de Hue-app.</translation>
+    </message>
+</context>
+<context>
+    <name>SchedulesPage</name>
+    <message>
+        <location filename="../qml/pages/SchedulesPage.qml" line="26"/>
+        <source>Schedules</source>
+        <translation>Schema&apos;s</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SchedulesPage.qml" line="88"/>
+        <source>Not working: %1</source>
+        <translation>Werkt niet: %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SchedulesPage.qml" line="108"/>
+        <source>No schedules</source>
+        <translation>Geen schema&apos;s</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SchedulesPage.qml" line="109"/>
+        <source>Wake up, go to sleep and other automations are set up in the Hue app</source>
+        <translation>Wakker worden, gaan slapen en andere automatiseringen stel je in met de Hue-app</translation>
     </message>
 </context>
 <context>
@@ -931,6 +1005,124 @@
         <location filename="../qml/components/coveractions.js" line="9"/>
         <source>Nothing</source>
         <translation>Niets</translation>
+    </message>
+</context>
+<context>
+    <name>schedules</name>
+    <message>
+        <location filename="../qml/components/schedules.js" line="20"/>
+        <source>Wake up</source>
+        <translation>Wakker worden</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="21"/>
+        <source>Go to sleep</source>
+        <translation>Gaan slapen</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="22"/>
+        <source>Timer</source>
+        <translation>Timer</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="23"/>
+        <source>Lights on a schedule</source>
+        <translation>Lampen volgens schema</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="24"/>
+        <source>Natural light</source>
+        <translation>Natuurlijk licht</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="25"/>
+        <source>Coming home</source>
+        <translation>Thuiskomen</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="26"/>
+        <source>Leaving home</source>
+        <translation>Weggaan</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="33"/>
+        <source>Once</source>
+        <translation>Eenmalig</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="35"/>
+        <source>Every day</source>
+        <translation>Elke dag</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="38"/>
+        <source>Weekdays</source>
+        <translation>Doordeweeks</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="40"/>
+        <source>Weekends</source>
+        <translation>In het weekend</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="58"/>
+        <source>Sunrise</source>
+        <translation>Zonsopkomst</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="60"/>
+        <source>Sunset</source>
+        <translation>Zonsondergang</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="64"/>
+        <source>%1 + %n min</source>
+        <translation>
+            <numerusform>%1 + %n min</numerusform>
+            <numerusform>%1 + %n min</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="66"/>
+        <source>%1 − %n min</source>
+        <translation>
+            <numerusform>%1 − %n min</numerusform>
+            <numerusform>%1 − %n min</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="74"/>
+        <source>%n s</source>
+        <translation>
+            <numerusform>%n s</numerusform>
+            <numerusform>%n s</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="77"/>
+        <source>%n min</source>
+        <translation>
+            <numerusform>%n min</numerusform>
+            <numerusform>%n min</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../qml/components/schedules.js" line="80"/>
+        <source>%n h</source>
+        <translation>
+            <numerusform>%n u</numerusform>
+            <numerusform>%n u</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="80"/>
+        <source>%1 h %2 min</source>
+        <translation>%1 u %2 min</translation>
+    </message>
+    <message>
+        <location filename="../qml/components/schedules.js" line="89"/>
+        <source>%1 to %2</source>
+        <translation>%1 tot %2</translation>
     </message>
 </context>
 </TS>

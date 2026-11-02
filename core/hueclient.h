@@ -138,8 +138,12 @@ public:
     Q_INVOKABLE void setLightRoom(const QString &lightId, const QString &roomId);
     // Whether the bridge (rather than zigbee2mqtt or Lampje itself) has it.
     Q_INVOKABLE bool isFromBridge(const QString &id) const;
-    // Switch a sensor service (e.g. motion) on or off.
+    // Switch a sensor service (e.g. motion) or a schedule (behavior_instance) on or off.
     Q_INVOKABLE void setEnabled(const QString &id, bool enabled);
+    // A schedule that starts at a time of day (see HueScheduleModel's editable): when, and on
+    // which days ("monday" ... "sunday"; none: once). The rest of its configuration stays.
+    Q_INVOKABLE void setScheduleTime(const QString &scheduleId, int hour, int minute, const QStringList &days);
+    Q_INVOKABLE void deleteSchedule(const QString &scheduleId);
     Q_INVOKABLE void allOff();
     Q_INVOKABLE QColor mirekColor(int mirek) const;
 

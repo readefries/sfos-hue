@@ -42,6 +42,7 @@ DISTFILES += \
     qml/components/archetypes.js \
     qml/components/coveractions.js \
     qml/components/icons.js \
+    qml/components/schedules.js \
     qml/components/GroupDelegate.qml \
     qml/components/LevelSlider.qml \
     qml/components/LightDelegate.qml \
@@ -57,6 +58,8 @@ DISTFILES += \
     qml/pages/RoomPickerPage.qml \
     qml/pages/RoomsPage.qml \
     qml/pages/SceneDialog.qml \
+    qml/pages/ScheduleDialog.qml \
+    qml/pages/SchedulesPage.qml \
     qml/pages/SensorsPage.qml \
     qml/pages/SettingsPage.qml \
     qml/pages/SetupPage.qml \

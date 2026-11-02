@@ -187,6 +187,52 @@
       "actions": [{"target": {"rid": "light-3", "rtype": "light"},
                    "action": {"on": {"on": true}, "dimming": {"brightness": 1.0},
                               "color_temperature": {"mirek": 454}}}]
+    },
+    {"id": "ff8957e3-2eb9-4699-a0c8-ad2cb3ede704", "type": "behavior_script",
+     "metadata": {"name": "Wake up", "category": "automation"}},
+    {"id": "7e571ac6-f363-42e1-809a-4cbf6523ed72", "type": "behavior_script",
+     "metadata": {"name": "Basic time based light schedule", "category": "automation"}},
+    {"id": "e73bc72d-96b1-46f8-aa57-729861f80c78", "type": "behavior_script",
+     "metadata": {"name": "Timers", "category": "automation"}},
+    {"id": "script-switch", "type": "behavior_script",
+     "metadata": {"name": "Dimmer switch", "category": "accessory"}},
+    {
+      "id": "schedule-wake", "type": "behavior_instance",
+      "script_id": "ff8957e3-2eb9-4699-a0c8-ad2cb3ede704",
+      "metadata": {"name": "Weekday mornings"},
+      "enabled": true, "status": "running", "last_error": "",
+      "configuration": {
+        "end_brightness": 100.0, "fade_in_duration": {"seconds": 1800}, "style": "sunrise",
+        "when": {"recurrence_days": ["friday", "monday", "tuesday", "wednesday", "thursday"],
+                 "time_point": {"type": "time", "time": {"hour": 7, "minute": 15}}},
+        "where": [{"group": {"rid": "room-bed", "rtype": "room"}}]
+      }
+    },
+    {
+      "id": "schedule-evening", "type": "behavior_instance",
+      "script_id": "7e571ac6-f363-42e1-809a-4cbf6523ed72",
+      "metadata": {"name": "Evening lights"},
+      "enabled": true, "status": "errored", "last_error": "scene not found",
+      "configuration": {
+        "when_extended": {"recurrence_days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+                          "start_at": {"time_point": {"type": "sunset", "offset": {"minutes": -30}}},
+                          "end_at": {"time_point": {"type": "time", "time": {"hour": 23, "minute": 0}}}},
+        "where": [{"group": {"rid": "zone-reading", "rtype": "zone"}},
+                  {"group": {"rid": "home-1", "rtype": "bridge_home"}}]
+      }
+    },
+    {
+      "id": "schedule-timer", "type": "behavior_instance",
+      "script_id": "e73bc72d-96b1-46f8-aa57-729861f80c78",
+      "metadata": {"name": "Tea"},
+      "enabled": false, "status": "disabled", "last_error": "",
+      "configuration": {"duration": {"seconds": 240}, "end_state": "turn_off",
+                        "where": [{"group": {"rid": "room-living", "rtype": "room"}}]}
+    },
+    {
+      "id": "switch-behavior", "type": "behavior_instance", "script_id": "script-switch",
+      "metadata": {"name": "Dimmer switch 1"}, "enabled": true, "status": "running",
+      "configuration": {"device": {"rid": "dev-dimmer", "rtype": "device"}}
     }
   ]
 }

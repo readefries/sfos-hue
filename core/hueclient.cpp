@@ -5,6 +5,7 @@
 #include "huecommandqueue.h"
 #include "huediscovery.h"
 #include "huejson.h"
+#include "huemodels.h"
 #include "huepairing.h"
 #include "localgroups.h"
 #include "hueresourcestore.h"
@@ -603,6 +604,63 @@ QStringList HueClient::resolveLights(const QString &id) const
 void HueClient::setEnabled(const QString &id, bool enabled)
 {
     command(id, object(QStringLiteral("enabled"), enabled));
+}
+
+void HueClient::setScheduleTime(const QString &scheduleId, int hour, int minute, const QStringList &days)
+{
+    QJsonObject schedule = m_store->resource(scheduleId);
+    if (schedule.value(QStringLiteral("type")).toString() != QLatin1String("behavior_instance")
+            || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+        return;
+    }
+    QJsonObject configuration = schedule.value(QStringLiteral("configuration")).toObject();
+    const QString key = HueScheduleModel::whenKey(configuration);
+    if (key.isEmpty())
+        return;
+    const QStringList path = HueScheduleModel::startPath(key);
+    if (HueJson::at(configuration, path).toObject().value(QStringLiteral("type")).toString() != QLatin1String("time"))
+        return; // sunrise or sunset: not a time to change
+    QJsonObject time;
+    time.insert(QStringLiteral("hour"), hour);
+    time.insert(QStringLiteral("minute"), minute);
+    QJsonObject timePoint;
+    timePoint.insert(QStringLiteral("type"), QStringLiteral("time"));
+    timePoint.insert(QStringLiteral("time"), time);
+
+    QJsonObject when = configuration.value(key).toObject();
+    if (key == QLatin1String("when_extended")) {
+        QJsonObject start = when.value(QStringLiteral("start_at")).toObject();
+        start.insert(QStringLiteral("time_point"), timePoint);
+        when.insert(QStringLiteral("start_at"), start);
+    } else {
+        when.insert(QStringLiteral("time_point"), timePoint);
+    }
+    QJsonArray recurrence;
+    for (const QString &day : HueScheduleModel::weekDays()) {
+        if (days.contains(day))
+            recurrence.append(day);
+    }
+    if (recurrence.isEmpty())
+        when.remove(QStringLiteral("recurrence_days"));
+    else
+        when.insert(QStringLiteral("recurrence_days"), recurrence);
+    configuration.insert(key, when);
+
+    // The whole configuration, as the bridge checks it against the script's schema. In the
+    // store as a whole too: merging wouldn't drop recurrence_days.
+    schedule.insert(QStringLiteral("configuration"), configuration);
+    m_store->add(schedule);
+    m_queue->enqueue(QStringLiteral("behavior_instance"), scheduleId,
+                     object(QStringLiteral("configuration"), configuration));
+}
+
+void HueClient::deleteSchedule(const QString &scheduleId)
+{
+    if (m_store->type(scheduleId) != QLatin1String("behavior_instance"))
+        return;
+    finishRequest(m_bridge->remove(QStringLiteral("behavior_instance"), scheduleId), [this, scheduleId](const QByteArray &) {
+        m_store->remove(scheduleId);
+    });
 }
 
 void HueClient::allOff()

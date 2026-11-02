@@ -1021,6 +1021,108 @@ private slots:
         QCOMPARE(value(1, HueSensorModel::LastButtonEventRole).toString(), QStringLiteral("initial_press"));
     }
 
+    void scheduleModel()
+    {
+        HueResourceStore store;
+        store.reset(fixtureData());
+        HueScheduleModel schedules;
+        schedules.setStore(&store);
+        // Evening lights, Tea, Weekday mornings; not the switch's behaviour.
+        QCOMPARE(schedules.rowCount(), 3);
+        auto value = [&schedules](int row, int role) { return schedules.data(schedules.index(row), role); };
+
+        QCOMPARE(schedules.idAt(2), QStringLiteral("schedule-wake"));
+        QCOMPARE(value(2, HueScheduleModel::KindRole).toString(), QStringLiteral("wake_up"));
+        QCOMPARE(value(2, HueScheduleModel::ScriptNameRole).toString(), QStringLiteral("Wake up"));
+        QVERIFY(value(2, HueScheduleModel::EnabledRole).toBool());
+        QCOMPARE(value(2, HueScheduleModel::TimeTypeRole).toString(), QStringLiteral("time"));
+        QCOMPARE(value(2, HueScheduleModel::HourRole).toInt(), 7);
+        QCOMPARE(value(2, HueScheduleModel::MinuteRole).toInt(), 15);
+        QCOMPARE(value(2, HueScheduleModel::EndHourRole).toInt(), -1);
+        // In week order, whatever the bridge's.
+        QCOMPARE(value(2, HueScheduleModel::DaysRole).toStringList(),
+                 QStringList() << QStringLiteral("monday") << QStringLiteral("tuesday") << QStringLiteral("wednesday")
+                               << QStringLiteral("thursday") << QStringLiteral("friday"));
+        QCOMPARE(value(2, HueScheduleModel::PlacesRole).toStringList(), QStringList(QStringLiteral("Bedroom")));
+        QVERIFY(value(2, HueScheduleModel::EditableRole).toBool());
+        QVERIFY(value(2, HueScheduleModel::ErrorRole).toString().isEmpty());
+
+        QCOMPARE(value(0, HueScheduleModel::KindRole).toString(), QStringLiteral("time_based_light"));
+        QCOMPARE(value(0, HueScheduleModel::TimeTypeRole).toString(), QStringLiteral("sunset"));
+        QCOMPARE(value(0, HueScheduleModel::OffsetRole).toInt(), -30);
+        QCOMPARE(value(0, HueScheduleModel::HourRole).toInt(), -1);
+        QCOMPARE(value(0, HueScheduleModel::EndHourRole).toInt(), 23);
+        QCOMPARE(value(0, HueScheduleModel::EndMinuteRole).toInt(), 0);
+        QCOMPARE(value(0, HueScheduleModel::DaysRole).toStringList().size(), 7);
+        QCOMPARE(value(0, HueScheduleModel::PlacesRole).toStringList(),
+                 QStringList() << QStringLiteral("Reading corner") << QStringLiteral("Whole home"));
+        QVERIFY(!value(0, HueScheduleModel::EditableRole).toBool());
+        QCOMPARE(value(0, HueScheduleModel::ErrorRole).toString(), QStringLiteral("scene not found"));
+
+        QCOMPARE(value(1, HueScheduleModel::KindRole).toString(), QStringLiteral("timer"));
+        QVERIFY(!value(1, HueScheduleModel::EnabledRole).toBool());
+        QCOMPARE(value(1, HueScheduleModel::DurationRole).toInt(), 240);
+        QCOMPARE(value(1, HueScheduleModel::TimeTypeRole).toString(), QString());
+        QVERIFY(value(1, HueScheduleModel::DaysRole).toStringList().isEmpty());
+
+        // Renaming the room it's for changes the row.
+        QSignalSpy changed(&schedules, &QAbstractItemModel::dataChanged);
+        store.applyUpdate(json(R"({"id": "room-bed", "type": "room", "metadata": {"name": "Guest room"}})"));
+        QVERIFY(changed.count() >= 1);
+        QCOMPARE(value(2, HueScheduleModel::PlacesRole).toStringList(), QStringList(QStringLiteral("Guest room")));
+    }
+
+    void clientSchedules()
+    {
+        FakeHueBridge fake;
+        fake.pairReplies << QByteArray(R"([{"success": {"username": "client-key"}}])");
+        QTemporaryDir dir;
+        HueClient client(dir.path() + QStringLiteral("/lampje.conf"));
+        client.pair(fake.host(), QStringLiteral("001788fffe00cafe"), QStringLiteral("Fake bridge"));
+        QTRY_COMPARE(client.state(), HueClient::Connected);
+
+        client.setEnabled(QStringLiteral("schedule-timer"), true);
+        QVERIFY(client.store()->resource(QStringLiteral("schedule-timer")).value(QStringLiteral("enabled")).toBool());
+        QTRY_COMPARE(fake.puts().size(), 1);
+        QCOMPARE(fake.puts().last().path, QByteArray("/clip/v2/resource/behavior_instance/schedule-timer"));
+        QCOMPARE(fake.puts().last().body, QByteArray(R"({"enabled":true})"));
+
+        // Saturdays at half past eight; the rest of the configuration goes along.
+        client.setScheduleTime(QStringLiteral("schedule-wake"), 8, 30,
+                               QStringList() << QStringLiteral("saturday") << QStringLiteral("bogus"));
+        const QJsonObject local = client.store()->resource(QStringLiteral("schedule-wake"));
+        QCOMPARE(HueJson::at(local, {QStringLiteral("configuration"), QStringLiteral("when"), QStringLiteral("time_point"),
+                                     QStringLiteral("time"), QStringLiteral("hour")}).toInt(), 8);
+        QTRY_COMPARE(fake.puts().size(), 2);
+        QCOMPARE(fake.puts().last().path, QByteArray("/clip/v2/resource/behavior_instance/schedule-wake"));
+        const QJsonObject configuration = QJsonDocument::fromJson(fake.puts().last().body).object()
+                .value(QStringLiteral("configuration")).toObject();
+        QCOMPARE(at(configuration, "when", "recurrence_days").toArray(), QJsonArray() << QStringLiteral("saturday"));
+        QCOMPARE(HueJson::at(configuration, {QStringLiteral("when"), QStringLiteral("time_point"),
+                                             QStringLiteral("time"), QStringLiteral("minute")}).toInt(), 30);
+        QCOMPARE(at(configuration, "fade_in_duration", "seconds").toInt(), 1800);
+        QCOMPARE(configuration.value(QStringLiteral("where")).toArray().size(), 1);
+
+        // No days: once. Gone from the store too, not just left over from before.
+        client.setScheduleTime(QStringLiteral("schedule-wake"), 6, 0, QStringList());
+        QVERIFY(!HueJson::at(client.store()->resource(QStringLiteral("schedule-wake")),
+                             {QStringLiteral("configuration"), QStringLiteral("when")}).toObject()
+                .contains(QStringLiteral("recurrence_days")));
+        QTRY_COMPARE(fake.puts().size(), 3);
+        QVERIFY(!fake.puts().last().body.contains("recurrence_days"));
+
+        // Starting at sunset, and a timer: no time to change.
+        client.setScheduleTime(QStringLiteral("schedule-evening"), 20, 0, QStringList());
+        client.setScheduleTime(QStringLiteral("schedule-timer"), 20, 0, QStringList());
+        client.setScheduleTime(QStringLiteral("schedule-wake"), 24, 0, QStringList());
+        QTest::qWait(100);
+        QCOMPARE(fake.puts().size(), 3);
+
+        client.deleteSchedule(QStringLiteral("schedule-timer"));
+        QTRY_VERIFY(!client.store()->contains(QStringLiteral("schedule-timer")));
+        QCOMPARE(fake.withMethod("DELETE").last().path, QByteArray("/clip/v2/resource/behavior_instance/schedule-timer"));
+    }
+
     void clientScenes()
     {
         FakeHueBridge fake;

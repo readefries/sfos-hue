@@ -4,7 +4,9 @@ Native Philips Hue app for Sailfish OS. Work in progress.
 
 Talks directly to the Hue bridge on the local network over the CLIP v2 API: rooms and zones,
 single lights (brightness, colour temperature, colour), scenes, and live updates when lights are
-changed elsewhere (wall switches, the official app, automations).
+changed elsewhere (wall switches, the official app, automations). The bridge's schedules (wake up,
+go to sleep, timers, lights on a schedule) can be switched on and off, moved to another time or
+other days, and deleted.
 
 Zigbee lights and sensors paired with [zigbee2mqtt](https://www.zigbee2mqtt.io/) join in through
 an MQTT broker (Settings, Zigbee): they can go into the bridge's rooms and zones, or into rooms of
@@ -36,7 +38,7 @@ What's in `core/`:
   Lamps with several spots (e.g. Hue Runner) are separate devices with one light each; only
   their model ids (the lamp's 12NC plus `_01`, `_02`, ...) say they belong together. Within a room
   those become a fixture, with an id that works wherever a light id does.
-- `HueRoomModel`, `HueLightModel`, `HueSceneModel`, `HueSensorModel`: list models over the store. When a change
+- `HueRoomModel`, `HueLightModel`, `HueSceneModel`, `HueSensorModel`, `HueScheduleModel`: list models over the store. When a change
   doesn't add, remove or reorder rows, only the rows it touches are updated, so delegates (and a
   slider under the finger) survive the stream's updates.
 - `HueCommandQueue`: about 10 light commands a second, and at most one a second per group, as
@@ -120,11 +122,12 @@ before it succeeds. `--cert`/`--key` serve HTTPS, to try the certificate pinning
   (motion, temperature, light level, buttons, batteries; motion sensors can be switched off); icons
   by lamp and room type; Dutch; creating, renaming, updating and deleting scenes; creating and editing zones;
   two configurable cover buttons; renaming lights, and renaming rooms or changing their kind;
-  zigbee2mqtt lights and sensors, in rooms with the Hue lights or of their own.
+  zigbee2mqtt lights and sensors, in rooms with the Hue lights or of their own; the bridge's
+  schedules (`behavior_instance` from its automation scripts): on/off, time and days, deleting.
 - **Next:** a fake MQTT broker in `tools/` for the emulator; MQTT over TLS; moving the bridge's
   lights between rooms.
 - **Then:** motion sensor sensitivity; more than one bridge; storing the
   app key in Sailfish Secrets.
-- **Maybe:** automations (`behavior_instance`), remote access through Philips' cloud API (needs a
+- **Maybe:** creating schedules, remote access through Philips' cloud API (needs a
   registered app), a background daemon for notifications from sensors.
 - **Out of scope:** Entertainment areas / sync, firmware updates, adding new lights.

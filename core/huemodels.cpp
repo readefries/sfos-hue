@@ -545,3 +545,186 @@ QVariant HueSensorModel::dataFor(const QString &id, int role) const
     }
     return QVariant();
 }
+
+// Schedules
+
+namespace {
+
+// The bridge's own scripts; others (and these, should the ids ever change) show the script's name.
+const QHash<QString, QString> &knownScripts()
+{
+    static const QHash<QString, QString> scripts = {
+        {QStringLiteral("ff8957e3-2eb9-4699-a0c8-ad2cb3ede704"), QStringLiteral("wake_up")},
+        {QStringLiteral("7238c707-8693-4f19-9095-ccdc1444d228"), QStringLiteral("go_to_sleep")},
+        {QStringLiteral("e73bc72d-96b1-46f8-aa57-729861f80c78"), QStringLiteral("timer")},
+        {QStringLiteral("7e571ac6-f363-42e1-809a-4cbf6523ed72"), QStringLiteral("time_based_light")},
+        {QStringLiteral("a4260b49-0c69-4926-a29c-417f4a38a352"), QStringLiteral("natural_light")},
+        {QStringLiteral("fd60fcd1-4809-4813-b510-4a18856a595c"), QStringLiteral("coming_home")},
+        {QStringLiteral("0194752a-2d53-4f92-8209-dfdc52745af3"), QStringLiteral("leaving_home")},
+    };
+    return scripts;
+}
+
+QJsonObject configurationOf(const QJsonObject &instance)
+{
+    return instance.value(QStringLiteral("configuration")).toObject();
+}
+
+QJsonObject startOf(const QJsonObject &configuration)
+{
+    const QString key = HueScheduleModel::whenKey(configuration);
+    if (key.isEmpty())
+        return QJsonObject();
+    return HueJson::at(configuration, HueScheduleModel::startPath(key)).toObject();
+}
+
+QJsonObject endOf(const QJsonObject &configuration)
+{
+    return at(configuration, "when_extended", "end_at", "time_point").toObject();
+}
+
+int timeOf(const QJsonObject &timePoint, const char *unit)
+{
+    if (timePoint.value(QStringLiteral("type")).toString() != QLatin1String("time"))
+        return -1;
+    const QJsonValue value = at(timePoint, "time", unit);
+    return value.isDouble() ? value.toInt() : -1;
+}
+
+} // namespace
+
+HueScheduleModel::HueScheduleModel(QObject *parent)
+    : HueListModel(parent)
+{
+}
+
+QHash<int, QByteArray> HueScheduleModel::roleNames() const
+{
+    return {
+        {IdRole, "resourceId"},
+        {NameRole, "name"},
+        {KindRole, "kind"},
+        {ScriptNameRole, "scriptName"},
+        {EnabledRole, "enabled"},
+        {ErrorRole, "error"},
+        {TimeTypeRole, "timeType"},
+        {HourRole, "hour"},
+        {MinuteRole, "minute"},
+        {OffsetRole, "offset"},
+        {EndHourRole, "endHour"},
+        {EndMinuteRole, "endMinute"},
+        {DaysRole, "days"},
+        {DurationRole, "duration"},
+        {PlacesRole, "places"},
+        {EditableRole, "editable"},
+    };
+}
+
+QString HueScheduleModel::whenKey(const QJsonObject &configuration)
+{
+    if (configuration.value(QStringLiteral("when_extended")).isObject())
+        return QStringLiteral("when_extended");
+    if (configuration.value(QStringLiteral("when")).isObject())
+        return QStringLiteral("when");
+    return QString();
+}
+
+QStringList HueScheduleModel::startPath(const QString &whenKey)
+{
+    if (whenKey == QLatin1String("when_extended"))
+        return {whenKey, QStringLiteral("start_at"), QStringLiteral("time_point")};
+    return {whenKey, QStringLiteral("time_point")};
+}
+
+const QStringList &HueScheduleModel::weekDays()
+{
+    static const QStringList days = {
+        QStringLiteral("monday"), QStringLiteral("tuesday"), QStringLiteral("wednesday"),
+        QStringLiteral("thursday"), QStringLiteral("friday"), QStringLiteral("saturday"),
+        QStringLiteral("sunday"),
+    };
+    return days;
+}
+
+QStringList HueScheduleModel::collectIds() const
+{
+    QStringList ids;
+    for (const QString &id : m_store->idsOfType(QStringLiteral("behavior_instance"))) {
+        // Those behind switches and the like are "accessory"; unknown scripts may be anything.
+        const QString script = m_store->resource(id).value(QStringLiteral("script_id")).toString();
+        const QString category = at(m_store->resource(script), "metadata", "category").toString();
+        if (category.isEmpty() || category == QLatin1String("automation"))
+            ids.append(id);
+    }
+    return sortedByName(ids);
+}
+
+QStringList HueScheduleModel::groupsOf(const QJsonObject &instance) const
+{
+    QStringList groups;
+    for (const QJsonValue &value : configurationOf(instance).value(QStringLiteral("where")).toArray()) {
+        const QString group = at(value.toObject(), "group", "rid").toString();
+        if (!group.isEmpty() && !groups.contains(group))
+            groups.append(group);
+    }
+    return groups;
+}
+
+QStringList HueScheduleModel::dependenciesOf(const QString &id) const
+{
+    const QJsonObject instance = m_store->resource(id);
+    QStringList dependencies = groupsOf(instance);
+    dependencies.append(id);
+    dependencies.append(instance.value(QStringLiteral("script_id")).toString());
+    return dependencies;
+}
+
+QVariant HueScheduleModel::dataFor(const QString &id, int role) const
+{
+    const QJsonObject instance = m_store->resource(id);
+    const QJsonObject configuration = configurationOf(instance);
+    const QString script = instance.value(QStringLiteral("script_id")).toString();
+    switch (role) {
+    case IdRole: return id;
+    case NameRole: return at(instance, "metadata", "name").toString();
+    case KindRole: return knownScripts().value(script);
+    case ScriptNameRole: return at(m_store->resource(script), "metadata", "name").toString();
+    case EnabledRole: return instance.value(QStringLiteral("enabled")).toBool();
+    case ErrorRole:
+        if (instance.value(QStringLiteral("status")).toString() != QLatin1String("errored"))
+            return QString();
+        return instance.value(QStringLiteral("last_error")).toString();
+    case TimeTypeRole: return startOf(configuration).value(QStringLiteral("type")).toString();
+    case HourRole: return timeOf(startOf(configuration), "hour");
+    case MinuteRole: return timeOf(startOf(configuration), "minute");
+    case OffsetRole: return at(startOf(configuration), "offset", "minutes").toInt();
+    case EndHourRole: return timeOf(endOf(configuration), "hour");
+    case EndMinuteRole: return timeOf(endOf(configuration), "minute");
+    case DaysRole: {
+        const QString key = whenKey(configuration);
+        const QJsonArray days = configuration.value(key).toObject().value(QStringLiteral("recurrence_days")).toArray();
+        QStringList list;
+        for (const QString &day : weekDays()) {
+            if (days.contains(day))
+                list.append(day);
+        }
+        return list;
+    }
+    case DurationRole: {
+        const QJsonValue seconds = at(configuration, "duration", "seconds");
+        return seconds.isDouble() ? seconds.toInt() : -1;
+    }
+    case PlacesRole: {
+        QStringList names;
+        for (const QString &group : groupsOf(instance)) {
+            const QString name = m_store->type(group) == QLatin1String("bridge_home")
+                    ? tr("Whole home") : m_store->name(group);
+            if (!name.isEmpty())
+                names.append(name);
+        }
+        return names;
+    }
+    case EditableRole: return timeOf(startOf(configuration), "hour") >= 0;
+    }
+    return QVariant();
+}

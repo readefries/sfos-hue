@@ -17,6 +17,11 @@ EN = {
     "%n min ago": ["%n min ago", "%n min ago"],
     "%n h ago": ["%n h ago", "%n h ago"],
     "%n day(s) ago": ["%n day ago", "%n days ago"],
+    "%1 + %n min": ["%1 + %n min", "%1 + %n min"],
+    "%1 − %n min": ["%1 − %n min", "%1 − %n min"],
+    "%n s": ["%n s", "%n s"],
+    "%n min": ["%n min", "%n min"],
+    "%n h": ["%n h", "%n h"],
 }
 
 NL = {
@@ -171,7 +176,40 @@ NL = {
     "The MQTT broker did not accept the user name or password": "De MQTT-broker accepteert de gebruikersnaam of het wachtwoord niet",
     "The MQTT broker did not allow this user to connect": "De MQTT-broker laat deze gebruiker niet verbinden",
     "The MQTT broker refused the connection (%1)": "De MQTT-broker weigert de verbinding (%1)",
-    "The MQTT broker did not allow this user to subscribe": "De MQTT-broker laat deze gebruiker niet abonneren"
+    "The MQTT broker did not allow this user to subscribe": "De MQTT-broker laat deze gebruiker niet abonneren",
+    "Whole home": "Hele huis",
+    "Schedules": "Schema's",
+    "Delete": "Verwijderen",
+    "Deleting schedule": "Schema verwijderen",
+    "Time": "Tijd",
+    "Days": "Dagen",
+    "Without days, it runs once.": "Zonder dagen gaat hij één keer af.",
+    "This schedule doesn't start at a fixed time; change it in the Hue app.":
+        "Dit schema begint niet op een vaste tijd; pas het aan in de Hue-app.",
+    "Not working: %1": "Werkt niet: %1",
+    "No schedules": "Geen schema's",
+    "Wake up, go to sleep and other automations are set up in the Hue app":
+        "Wakker worden, gaan slapen en andere automatiseringen stel je in met de Hue-app",
+    "Wake up": "Wakker worden",
+    "Go to sleep": "Gaan slapen",
+    "Timer": "Timer",
+    "Lights on a schedule": "Lampen volgens schema",
+    "Natural light": "Natuurlijk licht",
+    "Coming home": "Thuiskomen",
+    "Leaving home": "Weggaan",
+    "Once": "Eenmalig",
+    "Every day": "Elke dag",
+    "Weekdays": "Doordeweeks",
+    "Weekends": "In het weekend",
+    "Sunrise": "Zonsopkomst",
+    "Sunset": "Zonsondergang",
+    "%1 + %n min": ["%1 + %n min", "%1 + %n min"],
+    "%1 − %n min": ["%1 − %n min", "%1 − %n min"],
+    "%n s": ["%n s", "%n s"],
+    "%n min": ["%n min", "%n min"],
+    "%n h": ["%n u", "%n u"],
+    "%1 h %2 min": "%1 u %2 min",
+    "%1 to %2": "%1 tot %2",
 }
 
 

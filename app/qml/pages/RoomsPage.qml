@@ -26,6 +26,10 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("SensorsPage.qml"))
             }
             MenuItem {
+                text: qsTr("Schedules")
+                onClicked: pageStack.push(Qt.resolvedUrl("SchedulesPage.qml"))
+            }
+            MenuItem {
                 text: qsTr("New room")
                 onClicked: {
                     var dialog = pageStack.push(Qt.resolvedUrl("EditDialog.qml"), {
